@@ -22,7 +22,7 @@ class App:
         pygame.display.set_caption(caption)
         self.size = (480, 272)
         print(sys.platform)
-        self.fullscreen = sys.platform[:3] == 'lin'
+        self.fullscreen = pygame.FULLSCREEN if sys.platform[:3] == 'lin' else False
         self.screen = pygame.display.set_mode(
             self.size, 
             self.fullscreen
