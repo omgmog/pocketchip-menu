@@ -9,10 +9,10 @@ class Pages:
     SETTINGS = 3
 
 class Apps:
-    TERMINAL = "vala-terminal -fs 8 -g 20 20"
+    TERMINAL = "sakura -s"
     GAME = "pico8"
     MUSIC = "sunvox"
-    INTERNET = "surf https://duck.com"
+    INTERNET = "midori -e fullscreen  https://duck.com"
     TEXT = "leafpad"
     FILES = "pcmanfm"
 
@@ -72,7 +72,7 @@ class App:
         self.page_labels = ["Power", "Home", "Settings"]
 
     def load_image(self, file):
-        self.image = pygame.image.load(file).convert()
+        self.image = pygame.image.load(file)
         self.rect = self.image.get_rect()
         self.screen = pygame.display.set_mode(self.rect.size)
 
@@ -136,6 +136,10 @@ class Drawable:
         self.rect = pygame.Rect(pos, rect)
         self.position = np.array(pos, dtype=float)
         self.image = img
+        if type(self.image) is str:
+            self.image = pygame.image.load(img)
+        # if img != None:
+            # self.image = pygame.image.load(img)
 
     def draw(self, surf):
         surf.blit(self.image, self.rect)
@@ -172,11 +176,17 @@ class Icon(Drawable):
 
 
 if __name__ == '__main__':
-    app = App()
+    app = App(file="assets/ui/mainBackground.png")
 
 
     def draw_page(page_index):
-        app.add(Drawable(img=app.image)) # draw the background to clear the draw buffer
+        if app.page == Pages.POWER:
+            app.add(Drawable(img="assets/ui/powerMenuBackground.png"))
+        elif app.page == Pages.SETTINGS:
+            app.add(Drawable(img="assets/ui/settingsBackground.png"))
+        else:
+            app.add(Drawable(img="assets/ui/mainBackground.png"))
+
 
         font = pygame.font.SysFont(None, 24)
         title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
@@ -190,7 +200,7 @@ if __name__ == '__main__':
                 icons.append(icon)
 
         for icon in icons:
-            filename="img/apps/icons8-"+icon[0]+"-96.png"
+            filename="assets/icons/icons8-"+icon[0]+"-96.png"
             label = font.render(icon[1], True, (255,255,255))
             action = icon[2]
             page = icon[3]
