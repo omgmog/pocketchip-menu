@@ -10,7 +10,7 @@ Still WIP.
 cd ~
 git clone https://github.com/omgmog/pocketchip-menu.git
 cd pocketchip-menu
-sudo apt install python3-pip
+sudo apt install python3-pip python3-pygame
 pip install -r requirements.txt
 python3 main.py
 ```

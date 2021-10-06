@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 from pygame.locals import *
+import sys
 
 class Pages:
     POWER = 1
@@ -20,7 +21,12 @@ class App:
         pygame.init()
         pygame.display.set_caption(caption)
         self.size = (480, 272)
-        self.screen = pygame.display.set_mode(self.size)
+        print(sys.platform)
+        self.fullscreen = sys.platform[:3] == 'lin'
+        self.screen = pygame.display.set_mode(
+            self.size, 
+            self.fullscreen
+        )
         self.running = True
         self.updating = True
         self.objects = []
@@ -53,7 +59,7 @@ class App:
                 Pages.HOME, (336, 140), (64, 64)
                 ],
         ]
-        self.bg_color = '#4D4D4D'
+        self.bg_color = (77, 77, 77) #'#4D4D4D'
 
         if file:
             self.load_image(file)
@@ -173,7 +179,7 @@ if __name__ == '__main__':
         app.add(Drawable(img=app.image)) # draw the background to clear the draw buffer
 
         font = pygame.font.SysFont(None, 24)
-        title = font.render(app.page_labels[page_index - 1], True, 'white')
+        title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
         title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
         app.add(Drawable(img=title, pos=(title_pos_x, 20)))
 
@@ -185,7 +191,7 @@ if __name__ == '__main__':
 
         for icon in icons:
             filename="img/apps/icons8-"+icon[0]+"-96.png"
-            label = font.render(icon[1], True, 'white')
+            label = font.render(icon[1], True, (255,255,255))
             action = icon[2]
             page = icon[3]
             pos = icon[4]
