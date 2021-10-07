@@ -14,13 +14,23 @@ class Pages:
     HOME = 2
     SETTINGS = 3
 
-class Apps:
-    TERMINAL = "sakura -s"
-    GAME = "pico8"
-    MUSIC = "sunvox"
-    INTERNET = "midori -e fullscreen  https://duck.com"
-    TEXT = "leafpad"
-    FILES = "pcmanfm"
+
+if PLATFORM == 'win':
+    class Apps:
+        TERMINAL = "powershell &"
+        GAME = ""
+        MUSIC = ""
+        INTERNET = ""
+        TEXT = "notepad"
+        FILES = "explorer"
+else:
+    class Apps:
+        TERMINAL = "sakura -s"
+        GAME = "pico8"
+        MUSIC = "sunvox"
+        INTERNET = "midori -e fullscreen  https://duck.com"
+        TEXT = "leafpad"
+        FILES = "pcmanfm"
 
 class App:
     def __init__(self, file=None, caption='Menu'):
@@ -96,6 +106,7 @@ class App:
     def add(self, object):
         self.objects.append(object)
         object.parent = self
+
     def addIcon(self, object):
         self.icon_objects.append(object)
         object.parent = self
@@ -144,8 +155,6 @@ class Drawable:
         self.image = img
         if type(self.image) is str:
             self.image = pygame.image.load(img)
-        # if img != None:
-            # self.image = pygame.image.load(img)
 
     def draw(self, surf):
         surf.blit(self.image, self.rect)
