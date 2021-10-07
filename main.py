@@ -2,6 +2,9 @@ import pygame
 import numpy as np
 from pygame.locals import *
 import sys
+from single_process import single_process
+
+single_process()
 
 class Pages:
     POWER = 1
@@ -83,6 +86,7 @@ class App:
             self.update()
             self.draw()
         pygame.quit()
+        raise SystemExit
 
     def add_cmd(self, key, cmd):
         self.key_cmd[key] = cmd
