@@ -2,9 +2,12 @@ import pygame
 import numpy as np
 from pygame.locals import *
 import sys
-from single_process import single_process
 
-single_process()
+PLATFORM = sys.platform[:3]
+
+if PLATFORM == 'lin':
+    from single_process import single_process
+    single_process()
 
 class Pages:
     POWER = 1
@@ -24,8 +27,7 @@ class App:
         pygame.init()
         pygame.display.set_caption(caption)
         self.size = (480, 272)
-        print(sys.platform)
-        self.fullscreen = pygame.FULLSCREEN if sys.platform[:3] == 'lin' else False
+        self.fullscreen = pygame.FULLSCREEN if PLATFORM == 'lin' else False
         self.screen = pygame.display.set_mode(
             self.size, 
             self.fullscreen
