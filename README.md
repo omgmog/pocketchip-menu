@@ -4,6 +4,8 @@ A simple PyGame replacement for the Pocket CHIP home launcher. Designed for Debi
 
 Still WIP.
 
+![Screenshot of the menu](https://i.ibb.co/CbcMHvf/2021-10-07-114218-480x272-scrot.png)
+
 ## Installation
 
 ```
