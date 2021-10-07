@@ -117,7 +117,6 @@ class App:
         elif event.type == KEYDOWN:
             if event.key == K_SPACE:
                 self.updating = not self.updating
-
             if event.key in self.key_cmd:
                 cmd = self.key_cmd[event.key]
                 eval(cmd)
@@ -190,57 +189,56 @@ class Icon(Drawable):
                     print(stdout)
 
 
+def draw_page(page_index):
+    if app.page == Pages.POWER:
+        app.add(Drawable(img="assets/ui/powerMenuBackground.png"))
+    elif app.page == Pages.SETTINGS:
+        app.add(Drawable(img="assets/ui/settingsBackground.png"))
+    else:
+        app.add(Drawable(img="assets/ui/mainBackground.png"))
+
+
+    font = pygame.font.SysFont(None, 24)
+    title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
+    title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
+    app.add(Drawable(img=title, pos=(title_pos_x, 20)))
+
+    font = pygame.font.SysFont(None, 18)
+    icons = []
+    for icon in app.icons:
+        if icon[3] == page_index:
+            icons.append(icon)
+
+    for icon in icons:
+        filename="assets/icons/icons8-"+icon[0]+"-96.png"
+        label = font.render(icon[1], True, (255,255,255))
+        action = icon[2]
+        page = icon[3]
+        pos = icon[4]
+        size = icon[5]
+
+        icon_center=pos[0]+(size[0]/2)
+        label_x = icon_center - (label.get_width()/2)
+        label_y = pos[1] + 72
+
+        app.addIcon(Icon(img=filename, pos=pos, size=size, page=page, action=action))
+        app.add(Drawable(img=label, pos=(label_x, label_y)))
+    
+
+def do_btn_left():
+    app.page -= 1
+    if app.page <= 1:
+        app.page = 1
+    draw_page(app.page)
+
+def do_btn_right():
+    app.page += 1
+    if app.page >= len(app.page_labels):
+        app.page = len(app.page_labels)
+    draw_page(app.page)
+
 if __name__ == '__main__':
     app = App(file="assets/ui/mainBackground.png")
-
-
-    def draw_page(page_index):
-        if app.page == Pages.POWER:
-            app.add(Drawable(img="assets/ui/powerMenuBackground.png"))
-        elif app.page == Pages.SETTINGS:
-            app.add(Drawable(img="assets/ui/settingsBackground.png"))
-        else:
-            app.add(Drawable(img="assets/ui/mainBackground.png"))
-
-
-        font = pygame.font.SysFont(None, 24)
-        title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
-        title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
-        app.add(Drawable(img=title, pos=(title_pos_x, 20)))
-
-        font = pygame.font.SysFont(None, 18)
-        icons = []
-        for icon in app.icons:
-            if icon[3] == page_index:
-                icons.append(icon)
-
-        for icon in icons:
-            filename="assets/icons/icons8-"+icon[0]+"-96.png"
-            label = font.render(icon[1], True, (255,255,255))
-            action = icon[2]
-            page = icon[3]
-            pos = icon[4]
-            size = icon[5]
-
-            icon_center=pos[0]+(size[0]/2)
-            label_x = icon_center - (label.get_width()/2)
-            label_y = pos[1] + 72
-
-            app.addIcon(Icon(img=filename, pos=pos, size=size, page=page, action=action))
-            app.add(Drawable(img=label, pos=(label_x, label_y)))
-
-
-    def do_btn_left():
-        app.page -= 1
-        if app.page <= 1:
-            app.page = 1
-        draw_page(app.page)
-
-    def do_btn_right():
-        app.page += 1
-        if app.page >= len(app.page_labels):
-            app.page = len(app.page_labels)
-        draw_page(app.page)
 
     app.add_cmd(K_LEFT, 'do_btn_left()')
     app.add_cmd(K_RIGHT, 'do_btn_right()')
