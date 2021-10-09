@@ -2,8 +2,10 @@ import pygame
 import numpy as np
 from pygame.locals import *
 import sys
+import os
 
 PLATFORM = sys.platform[:3]
+BASEDIR = os.path.dirname(__file__) or './'
 
 if PLATFORM == 'lin':
     from single_process import single_process
@@ -13,24 +15,6 @@ class Pages:
     POWER = 1
     HOME = 2
     SETTINGS = 3
-
-
-if PLATFORM == 'win':
-    class Apps:
-        TERMINAL = "powershell &"
-        GAME = ""
-        MUSIC = ""
-        INTERNET = ""
-        TEXT = "notepad"
-        FILES = "explorer"
-else:
-    class Apps:
-        TERMINAL = "sakura -s"
-        GAME = "pico8"
-        MUSIC = "sunvox"
-        INTERNET = "midori -e fullscreen  https://duck.com"
-        TEXT = "leafpad"
-        FILES = "pcmanfm"
 
 class App:
     def __init__(self, file=None, caption='Menu'):
@@ -46,34 +30,8 @@ class App:
         self.updating = True
         self.objects = []
         self.icon_objects = []
+        self.apps_dir = "./apps/"
     
-        # define all icons
-        self.icons = [
-            [
-                "console", "Terminal", Apps.TERMINAL,
-                Pages.HOME, (80, 40), (64, 64)
-                ],
-            [
-                "game-controller", "Play Pico-8", Apps.GAME,
-                Pages.HOME, (208, 40), (64, 64)
-                ],
-            [
-                "electronic-music", "Make Music", Apps.MUSIC,
-                Pages.HOME, (336, 40), (64, 64)
-                ],
-            [
-                "internet", "Surf", Apps.INTERNET,
-                Pages.HOME, (80, 140), (64, 64)
-                ],
-            [
-                "notepad", "Write", Apps.TEXT,
-                Pages.HOME, (208, 140), (64, 64)
-                ],
-            [
-                "browse-folder", "Files", Apps.FILES,
-                Pages.HOME, (336, 140), (64, 64)
-                ],
-        ]
         self.bg_color = (77, 77, 77) #'#4D4D4D'
 
         if file:
@@ -165,15 +123,19 @@ class Drawable:
         pass
 
 class Icon(Drawable):
-    def __init__(self, img=None, pos=(0, 0), size=None, rect=(20,20), page=None, action=None):
+    def __init__(self, img=None, pos=(0, 0), size=None, rect=None, page=None, action=None):
         self.page = page
         self.size = size
-        self.rect = pygame.Rect(pos, rect)
+        if not rect:
+            self.rect = pygame.Rect(pos, size)
+        else:
+            self.rect = pygame.Rect(pos, rect)
         self.position = np.array(pos, dtype=float)
         self.image = pygame.transform.scale(pygame.image.load(img), size)
         self.action = action
 
     def draw(self, surf):
+        pygame.draw.rect(surf, (255,0,0), self.rect, 2) # debug
         surf.blit(self.image, self.rect)
 
     def do(self, event):
@@ -188,6 +150,19 @@ class Icon(Drawable):
                     stdout, stderr = process.communicate()
                     print(stdout)
 
+def collate_apps():
+    import os
+    apps_dir_contents = sorted(os.listdir(app.apps_dir))
+    icons = []
+    for file in apps_dir_contents:
+        filestream = open(app.apps_dir + file, "r")
+        app_dict = dict()
+        for line in filestream:
+            key = line.split('=')[0]
+            value = line.split('=')[1].strip()
+            app_dict[key] = value
+        icons.append(app_dict)
+    return icons
 
 def draw_page(page_index):
     if app.page == Pages.POWER:
@@ -197,33 +172,59 @@ def draw_page(page_index):
     else:
         app.add(Drawable(img="assets/ui/mainBackground.png"))
 
-
     font = pygame.font.SysFont(None, 24)
     title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
     title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
     app.add(Drawable(img=title, pos=(title_pos_x, 20)))
 
     font = pygame.font.SysFont(None, 18)
-    icons = []
-    for icon in app.icons:
-        if icon[3] == page_index:
-            icons.append(icon)
 
-    for icon in icons:
-        filename="assets/icons/icons8-"+icon[0]+"-96.png"
-        label = font.render(icon[1], True, (255,255,255))
-        action = icon[2]
-        page = icon[3]
-        pos = icon[4]
-        size = icon[5]
+    if page_index == Pages.HOME:
+        icons = collate_apps()
+        wrap_at = 3
+        wrap_counter = -1  # -1 so that first row isn't + row_height
+        start_x = 80
+        start_y = 50
+        col_offset = start_x
+        row_offset = start_y
+        col_width = 128
+        row_height = 100
 
-        icon_center=pos[0]+(size[0]/2)
-        label_x = icon_center - (label.get_width()/2)
-        label_y = pos[1] + 72
+        for index, icon in enumerate(icons):
+            if (index % wrap_at) == 0:
+                col_offset = start_x        # start cols again for a new row
+                wrap_counter += 1
+                row_offset = start_y + (row_height*wrap_counter)
+            else:
+                col_offset += col_width     # add to the cols 
+            
+            pos = (
+                col_offset, 
+                row_offset
+            )
 
-        app.addIcon(Icon(img=filename, pos=pos, size=size, page=page, action=action))
-        app.add(Drawable(img=label, pos=(label_x, label_y)))
-    
+            size = (64, 64)
+            icon_center=pos[0]+(size[0]/2)
+            label = font.render(icon["title"], True, (255,255,255))
+
+            label_x = icon_center - (label.get_width()/2)
+            label_y = pos[1] + 72
+
+            app.add(
+                Drawable(
+                    img=label,
+                    pos=(label_x, label_y)
+                )
+            )
+            app.addIcon(
+                Icon(
+                    img=BASEDIR + icon["icon"], 
+                    pos=pos, 
+                    size=size, 
+                    page=Pages.HOME,
+                    action=icon["execute"]
+                )
+            )
 
 def do_btn_left():
     app.page -= 1
@@ -239,7 +240,6 @@ def do_btn_right():
 
 if __name__ == '__main__':
     app = App(file="assets/ui/mainBackground.png")
-
     app.add_cmd(K_LEFT, 'do_btn_left()')
     app.add_cmd(K_RIGHT, 'do_btn_right()')
     draw_page(Pages.HOME) # start with home

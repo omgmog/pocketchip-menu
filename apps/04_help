@@ -1,0 +1,3 @@
+title=Help
+icon=icons/help.png
+execute=midori -e fullscreen  https://chip.guide

@@ -1,0 +1,3 @@
+title=Terminal
+icon=icons/terminal.png
+execute=sakura -s
