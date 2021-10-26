@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+import psutil
 from pygame.locals import *
 import sys
 import os
@@ -164,6 +165,44 @@ def collate_apps():
         icons.append(app_dict)
     return icons
 
+class Battery:
+    def __init__(self):
+        self.parent = None
+        self.size = (24,24)
+        self.image = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.position = ((app.screen.get_width() - self.size[0] - 5), 0)
+        self.rect = pygame.Rect(self.position, self.size)
+        self.battery_present = False
+        if psutil.sensors_battery() is not None:
+            self.battery_present = True
+
+    def draw(self, surf):
+        surf.blit(self.image, self.rect)
+
+    def do(self, event):
+        pass
+
+    def update(self):
+        if self.battery_present is False:
+            return
+        battery_data = psutil.sensors_battery()
+        if battery_data is None: #maybe battery can be unplugged?
+            return
+        if battery_data.power_plugged is True:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/batterycharge.png'), self.size)
+            return
+        if battery_data.percent > 75:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery100.png'), self.size)
+            return
+        if battery_data.percent > 50:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery75.png'), self.size)
+            return
+        if battery_data.percent > 25:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery50.png'), self.size)
+            return
+        else:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery25.png'), self.size)
+
 def draw_page(page_index):
     if app.page == Pages.POWER:
         app.add(Drawable(img="assets/ui/powerMenuBackground.png"))
@@ -176,6 +215,7 @@ def draw_page(page_index):
     title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
     title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
     app.add(Drawable(img=title, pos=(title_pos_x, 20)))
+    app.add(Battery())
 
     font = pygame.font.SysFont(None, 18)
 
