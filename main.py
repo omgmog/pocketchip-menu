@@ -218,7 +218,7 @@ def draw_page(page_index):
             )
             app.addIcon(
                 Icon(
-                    img=BASEDIR + icon["icon"], 
+                    img=BASEDIR + "/" + icon["icon"],
                     pos=pos, 
                     size=size, 
                     page=Pages.HOME,
