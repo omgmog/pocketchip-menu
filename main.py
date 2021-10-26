@@ -51,6 +51,9 @@ class App:
         self.page = Pages.HOME
         self.page_labels = ["Power", "Home", "Settings"]
 
+        #redraw the UI every 5000ms if no events received first
+        pygame.time.set_timer(USEREVENT+1,5000)
+
     def load_image(self, file):
         self.image = pygame.image.load(file)
         self.rect = self.image.get_rect()
@@ -58,8 +61,8 @@ class App:
 
     def run(self):
         while self.running:
-            for event in pygame.event.get():
-                self.do(event)
+            event = pygame.event.wait()
+            self.do(event)
             self.update()
             self.draw()
         pygame.quit()
