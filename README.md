@@ -12,8 +12,8 @@ Still WIP.
 cd ~
 git clone https://github.com/omgmog/pocketchip-menu.git
 cd pocketchip-menu
-sudo apt install python3-pip python3-pygame unclutter
-pip install -r requirements.txt
+sudo apt install unclutter python3-pip python3-numpy python3-pygame python3-dbus
+sudo pip install -r requirements.txt
 chmod +x load.sh
 ln rc.lua /home/chip/.config/awesome/rc.lua
 ```

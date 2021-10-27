@@ -1,6 +1,7 @@
-numpy==1.21.2
-pygame==2.0.1
-single-process==2.4.1
-psutil==5.8.0
-dbus-python==1.2.16
-python-networkmanager==2.2
+numpy==1.19.5
+pygame==1.9.6; sys.platform == 'linux'
+pygame==2.0.1; sys.platform == 'win32'
+single-process==2.4.1; sys.platform == 'linux'
+psutil==5.8.0; sys.platform == 'linux'
+dbus-python==1.2.16; sys.platform == 'linux'
+python-networkmanager==2.2; sys.platform == 'linux'
