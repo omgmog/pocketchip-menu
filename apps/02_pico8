@@ -1,3 +1,3 @@
 title=Play Pico-8
-icon=icons/pico8.png
+icon=pico8.png
 execute=pico8
