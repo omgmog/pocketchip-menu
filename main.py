@@ -1,22 +1,32 @@
 import pygame
 import numpy as np
-import psutil
 from pygame.locals import *
 import sys
 import os
-import NetworkManager
-import dbus.mainloop.glib
 
-main_dbus_loop = dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-dbus.set_default_main_loop(main_dbus_loop)
-
+# Controls the visibility of some logging, debug rendering, etc.
+DEBUG = False
 
 PLATFORM = sys.platform[:3]
-BASEDIR = os.path.dirname(__file__) or './'
+BASEDIR = os.path.dirname(__file__) or '.'
+ASSETSDIR = os.path.normpath(os.path.join(BASEDIR, 'assets/ui'))
+ICONSDIR = os.path.normpath(os.path.join(BASEDIR, 'icons'))
+FONT = os.path.join(ASSETSDIR, 'Lato-Regular.ttf')
+
+def asset(filename=None):
+    return os.path.join(ASSETSDIR,filename)
+def iconasset(filename=None):
+    return os.path.join(ICONSDIR,filename)
 
 if PLATFORM == 'lin':
+    import psutil
+    import NetworkManager
+    import dbus.mainloop.glib
     from single_process import single_process
+
     single_process()
+    main_dbus_loop = dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    dbus.set_default_main_loop(main_dbus_loop)
 
 class Pages:
     POWER = 1
@@ -37,7 +47,7 @@ class App:
         self.updating = True
         self.objects = []
         self.icon_objects = []
-        self.apps_dir = "./apps/"
+        self.apps_dir = BASEDIR + '/apps/'
     
         self.bg_color = (77, 77, 77) #'#4D4D4D'
 
@@ -49,7 +59,7 @@ class App:
             self.rect = self.image.get_rect()
         self.key_cmd = {}
         self.page = Pages.HOME
-        self.page_labels = ["Power", "Home", "Settings"]
+        self.page_labels = ['Power', 'Home', 'Settings']
 
         #redraw the UI every 5000ms if no events received first
         pygame.time.set_timer(USEREVENT+1,5000)
@@ -119,9 +129,7 @@ class Drawable:
         self.size = size
         self.rect = pygame.Rect(pos, rect)
         self.position = np.array(pos, dtype=float)
-        self.image = img
-        if type(self.image) is str:
-            self.image = pygame.image.load(img)
+        self.image = pygame.image.load(img) if type(img) is str else img
 
     def draw(self, surf):
         surf.blit(self.image, self.rect)
@@ -141,11 +149,17 @@ class Icon(Drawable):
         else:
             self.rect = pygame.Rect(pos, rect)
         self.position = np.array(pos, dtype=float)
-        self.image = pygame.transform.scale(pygame.image.load(img), size)
+
+        self.image = None
+        if img is not None:
+            self.image = pygame.image.load(img)
+            self.image = pygame.transform.scale(self.image, size)
+
         self.action = action
 
     def draw(self, surf):
-        pygame.draw.rect(surf, (255,0,0), self.rect, 2) # debug
+        if DEBUG:
+            pygame.draw.rect(surf, (255,0,0), self.rect, 2) # draw a red rectangle around the icons
         surf.blit(self.image, self.rect)
 
     def do(self, event):
@@ -154,18 +168,19 @@ class Icon(Drawable):
             click = pygame.mouse.get_pressed()
             if self.position[0]+self.size[0] > mouse[0] > self.position[0] and self.position[1]+self.size[1] > mouse[1] > self.position[1]:
                 if click[0] == 1 and self.action != None:
-                    print(self.action)
+                    if DEBUG:
+                        print(self.action)
                     from subprocess import Popen, PIPE
                     process = Popen(self.action, stdout=PIPE, stderr=PIPE, shell = True)
                     stdout, stderr = process.communicate()
-                    print(stdout)
+                    if DEBUG:
+                        print(stdout)
 
 def collate_apps():
-    import os
-    apps_dir_contents = sorted(os.listdir(app.apps_dir))
+    apps_dir_contents = [f for f in os.listdir(app.apps_dir) if os.path.isfile(os.path.join(app.apps_dir,f))]
     icons = []
     for file in apps_dir_contents:
-        filestream = open(app.apps_dir + file, "r")
+        filestream = open(app.apps_dir + file, 'r')
         app_dict = dict()
         for line in filestream:
             key = line.split('=')[0]
@@ -182,8 +197,9 @@ class Battery:
         self.position = ((app.screen.get_width() - self.size[0] - 5), 0)
         self.rect = pygame.Rect(self.position, self.size)
         self.battery_present = False
-        if psutil.sensors_battery() is not None:
-            self.battery_present = True
+        if PLATFORM == 'lin':
+            if psutil.sensors_battery() is not None:
+                self.battery_present = True
 
     def draw(self, surf):
         surf.blit(self.image, self.rect)
@@ -198,19 +214,19 @@ class Battery:
         if battery_data is None: #maybe battery can be unplugged?
             return
         if battery_data.power_plugged is True:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/batterycharge.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('batterycharge.png')), self.size)
             return
         if battery_data.percent > 75:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery100.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery100.png')), self.size)
             return
         if battery_data.percent > 50:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery75.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery75.png')), self.size)
             return
         if battery_data.percent > 25:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery50.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery50.png')), self.size)
             return
         else:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery25.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery25.png')), self.size)
 
 class Wifi:
     def __init__(self):
@@ -220,9 +236,10 @@ class Wifi:
         self.position = ((app.screen.get_width() - (self.size[0] * 2) - 10), 0)
         self.rect = pygame.Rect(self.position, self.size)
         self.wifi_device = None
-        for device in NetworkManager.NetworkManager.GetAllDevices():
-            if device.DeviceType == 2:
-                self.wifi_device = device
+        if PLATFORM == 'lin':
+            for device in NetworkManager.NetworkManager.GetAllDevices():
+                if device.DeviceType == 2:
+                    self.wifi_device = device
 
     def draw(self, surf):
         surf.blit(self.image, self.rect)
@@ -234,37 +251,37 @@ class Wifi:
         if self.wifi_device is None:
             return
         if self.wifi_device.ActiveConnection is None:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-disc.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-disc.png')), self.size)
             return
         if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 80:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-full.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-full.png')), self.size)
             return
         if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 60:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-good.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-good.png')), self.size)
             return
         if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 40:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-fair.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-fair.png')), self.size)
             return
         else:
-            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-weak.png'), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-weak.png')), self.size)
             return
 
 def draw_page(page_index):
     if app.page == Pages.POWER:
-        app.add(Drawable(img="assets/ui/powerMenuBackground.png"))
+        app.add(Drawable(img=asset('powerMenuBackground.png')))
     elif app.page == Pages.SETTINGS:
-        app.add(Drawable(img="assets/ui/settingsBackground.png"))
+        app.add(Drawable(img=asset('settingsBackground.png')))
     else:
-        app.add(Drawable(img="assets/ui/mainBackground.png"))
+        app.add(Drawable(img=asset('mainBackground.png')))
 
-    font = pygame.font.SysFont(None, 24)
+    font = pygame.font.Font(FONT, 20)
     title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
     title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
     app.add(Drawable(img=title, pos=(title_pos_x, 20)))
     app.add(Battery())
     app.add(Wifi())
 
-    font = pygame.font.SysFont(None, 18)
+    font = pygame.font.Font(FONT, 16)
 
     if page_index == Pages.HOME:
         icons = collate_apps()
@@ -292,7 +309,7 @@ def draw_page(page_index):
 
             size = (64, 64)
             icon_center=pos[0]+(size[0]/2)
-            label = font.render(icon["title"], True, (255,255,255))
+            label = font.render(icon['title'], True, (255,255,255))
 
             label_x = icon_center - (label.get_width()/2)
             label_y = pos[1] + 72
@@ -305,11 +322,11 @@ def draw_page(page_index):
             )
             app.addIcon(
                 Icon(
-                    img=BASEDIR + "/" + icon["icon"],
+                    img=iconasset(icon['icon']),
                     pos=pos, 
                     size=size, 
                     page=Pages.HOME,
-                    action=icon["execute"]
+                    action=icon['execute']
                 )
             )
 
@@ -326,7 +343,7 @@ def do_btn_right():
     draw_page(app.page)
 
 if __name__ == '__main__':
-    app = App(file="assets/ui/mainBackground.png")
+    app = App(file=asset('mainBackground.png'))
     app.add_cmd(K_LEFT, 'do_btn_left()')
     app.add_cmd(K_RIGHT, 'do_btn_right()')
     draw_page(Pages.HOME) # start with home
