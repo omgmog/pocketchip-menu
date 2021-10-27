@@ -59,7 +59,7 @@ class App:
             self.rect = self.image.get_rect()
         self.key_cmd = {}
         self.page = Pages.HOME
-        self.page_labels = ['Power', 'Home', 'Settings']
+        self.page_labels = ['Power', 'Apps', 'Settings']
         # redraw the UI every 5000ms if no events received first
         # disabled for now as it causes interaction issues...
         # pygame.time.set_timer(USEREVENT+1,5000)
@@ -93,15 +93,13 @@ class App:
         if event.type == QUIT:
             self.running = False
         elif event.type == KEYDOWN:
-            if event.key == K_SPACE:
-                self.updating = not self.updating
             if event.key in self.key_cmd:
                 cmd = self.key_cmd[event.key]
                 eval(cmd)
 
         for obj in self.objects:
             obj.do(event)
-        
+    
         for icon in self.icon_objects:
             if icon.page == app.page:
                 icon.do(event)
@@ -158,9 +156,9 @@ class Icon(Drawable):
         self.action = action
 
     def draw(self, surf):
+        surf.blit(self.image, self.rect)
         if DEBUG:
             pygame.draw.rect(surf, (255,0,0), self.rect, 2) # draw a red rectangle around the icons
-        surf.blit(self.image, self.rect)
 
     def do(self, event):
         if event.type == MOUSEBUTTONDOWN:
@@ -168,8 +166,7 @@ class Icon(Drawable):
             click = pygame.mouse.get_pressed()
             if self.position[0]+self.size[0] > mouse[0] > self.position[0] and self.position[1]+self.size[1] > mouse[1] > self.position[1]:
                 if click[0] == 1 and self.action != None:
-                    if DEBUG:
-                        print(self.action)
+                    print('Clicked an icon: {}'.format(self.action))
                     from subprocess import Popen, PIPE
                     process = Popen(self.action, stdout=PIPE, stderr=PIPE, shell = True)
                     stdout, stderr = process.communicate()
@@ -194,9 +191,8 @@ class Battery:
     def __init__(self):
         self.parent = None
         self.size = (24,24)
-        self.index = 2
         self.image = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.position = ((app.screen.get_width() - (self.size[0] * self.index) - (self.index * 10)), 1)
+        self.position = (10, 2)
         self.rect = pygame.Rect(self.position, self.size)
         self.battery_present = False
         self.text = '100%'
@@ -212,7 +208,7 @@ class Battery:
         font = pygame.font.Font(FONT, 12)
         label = font.render(self.text, True, (255,255,255))
         labelrect = label.get_rect()
-        labelrect.topright = (self.rect[0] - 5, self.rect[1] + 5)
+        labelrect.topleft = (self.rect[0] + self.size[0] + 5, self.rect[1] + 5)
         surf.blit(label, labelrect)
 
 
@@ -249,7 +245,7 @@ class Wifi:
         self.size = (26,24)
         self.index = 1
         self.image = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.position = ((app.screen.get_width() - (self.size[0] * self.index) - (self.index * 10)), 0)
+        self.position = ((app.screen.get_width() - (self.size[0] * self.index) - (self.index * 10)), 1)
         self.rect = pygame.Rect(self.position, self.size)
         self.wifi_device = None
         if PLATFORM == 'lin':
@@ -284,7 +280,87 @@ class Wifi:
             self.image = pygame.transform.scale(pygame.image.load(asset('wifi-25.png')), self.size)
             return
 
+
+def inarea(mouse,pos,area):
+    return pos[0]+area[0] > mouse[0] > pos[0] and pos[1]+area[1] > mouse[1] > pos[1]
+
+class PageNav:
+    def __init__(self):
+        self.parent = None
+        self.power_icon_size = (45,22)
+        self.power_icon_pos = (10, app.screen.get_height() - 10 - self.power_icon_size[1])
+        self.settings_icon_size = (45,22)
+        self.settings_icon_pos = (app.screen.get_width() - 10, app.screen.get_height() - 10 - self.settings_icon_size[1])
+
+        self.home_icon_size = (64,64)
+        self.home_from_power_pos = (app.screen.get_width(), (app.screen.get_height() / 2) - (self.home_icon_size[1] /2))
+        self.home_from_settings_pos = (0, (app.screen.get_height() / 2) - (self.home_icon_size[1] /2))
+        self.clicked = False
+    
+    def draw(self, surf):
+        if app.page == Pages.POWER:
+            home_icon = pygame.transform.scale(pygame.image.load(asset('nextIcon.png')), self.home_icon_size)
+            home_icon_rect = home_icon.get_rect()
+            home_icon_rect.topright = self.home_from_power_pos
+            surf.blit(home_icon, home_icon_rect)
+        if app.page == Pages.SETTINGS:
+            home_icon = pygame.transform.scale(pygame.image.load(asset('backIcon.png')), self.home_icon_size)
+            home_icon_rect = home_icon.get_rect()
+            home_icon_rect.topleft = self.home_from_settings_pos
+            surf.blit(home_icon, home_icon_rect)
+
+        if app.page == Pages.HOME:
+            power_icon = pygame.transform.scale(pygame.image.load(asset('powerIcon.png')), self.power_icon_size)
+            power_icon_rect = power_icon.get_rect()
+            power_icon_rect.topleft = self.power_icon_pos
+            surf.blit(power_icon, power_icon_rect)
+
+            settings_icon = pygame.transform.scale(pygame.image.load(asset('settingsIcon.png')), self.settings_icon_size)
+            settings_icon_rect = settings_icon.get_rect()
+            settings_icon_rect.topright = self.settings_icon_pos
+            surf.blit(settings_icon, settings_icon_rect)
+
+    def do(self, event):
+        if app.page == Pages.POWER \
+        or app.page == Pages.SETTINGS:
+            if event.type == MOUSEBUTTONDOWN:
+                mouse = pygame.mouse.get_pos()
+                click = pygame.mouse.get_pressed()
+
+                if inarea(mouse, (self.home_from_power_pos[0] - self.home_icon_size[0], self.home_from_power_pos[1]), self.home_icon_size) \
+                or inarea(mouse, self.home_from_settings_pos, self.home_icon_size):
+                    if click[0] == 1:
+                        print('clicked home')
+                        app.page = Pages.HOME
+                        self.clicked = True
+            
+        if app.page == Pages.HOME:
+            if event.type == MOUSEBUTTONDOWN:
+                mouse = pygame.mouse.get_pos()
+                click = pygame.mouse.get_pressed()
+                
+                if inarea(mouse, self.power_icon_pos, self.power_icon_size):
+                    if click[0] == 1:
+                        print('clicked power')
+                        app.page = Pages.POWER
+                        self.clicked = True
+
+                if inarea(mouse, (self.settings_icon_pos[0] - self.settings_icon_size[0], self.settings_icon_pos[1]), self.settings_icon_size):
+                    if click[0] == 1:
+                        print('clicked settings')
+                        app.page = Pages.SETTINGS
+                        self.clicked = True
+
+    def update(self):
+        if self.clicked:
+            draw_page(app.page)
+            self.clicked = not self.clicked
+
 def draw_page(page_index):
+    # empty the object lists to stop event/draw spamming
+    app.objects = []
+    app.icon_objects = []
+
     if app.page == Pages.POWER:
         app.add(Drawable(img=asset('powerMenuBackground.png')))
     elif app.page == Pages.SETTINGS:
@@ -298,6 +374,7 @@ def draw_page(page_index):
     app.add(Drawable(img=title, pos=(title_pos_x, 20)))
     app.add(Battery())
     app.add(Wifi())
+    app.add(PageNav())
 
     font = pygame.font.Font(FONT, 16)
 
