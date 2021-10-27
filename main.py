@@ -189,20 +189,32 @@ def collate_apps():
         icons.append(app_dict)
     return icons
 
+# TODO: Can probably consolidate the classes for battery/wifi icons
 class Battery:
     def __init__(self):
         self.parent = None
         self.size = (24,24)
+        self.index = 2
         self.image = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.position = ((app.screen.get_width() - self.size[0] - 5), 0)
+        self.position = ((app.screen.get_width() - (self.size[0] * self.index) - (self.index * 10)), 1)
         self.rect = pygame.Rect(self.position, self.size)
         self.battery_present = False
+        self.text = '100%'
         if PLATFORM == 'lin':
             if psutil.sensors_battery() is not None:
                 self.battery_present = True
 
+        if PLATFORM == 'win':
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery-100.png')), self.size)
+
     def draw(self, surf):
         surf.blit(self.image, self.rect)
+        font = pygame.font.Font(FONT, 12)
+        label = font.render(self.text, True, (255,255,255))
+        labelrect = label.get_rect()
+        labelrect.topright = (self.rect[0] - 5, self.rect[1] + 5)
+        surf.blit(label, labelrect)
+
 
     def do(self, event):
         pass
@@ -211,35 +223,41 @@ class Battery:
         if self.battery_present is False:
             return
         battery_data = psutil.sensors_battery()
+        self.text = '{}%'.format(battery_data.percent)
+
+
         if battery_data is None: #maybe battery can be unplugged?
             return
         if battery_data.power_plugged is True:
-            self.image = pygame.transform.scale(pygame.image.load(asset('batterycharge.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery-charging.png')), self.size)
             return
         if battery_data.percent > 75:
-            self.image = pygame.transform.scale(pygame.image.load(asset('battery100.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery-100.png')), self.size)
             return
         if battery_data.percent > 50:
-            self.image = pygame.transform.scale(pygame.image.load(asset('battery75.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery-75.png')), self.size)
             return
         if battery_data.percent > 25:
-            self.image = pygame.transform.scale(pygame.image.load(asset('battery50.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery-50.png')), self.size)
             return
         else:
-            self.image = pygame.transform.scale(pygame.image.load(asset('battery25.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('battery-25.png')), self.size)
 
 class Wifi:
     def __init__(self):
         self.parent = None
-        self.size = (24,24)
+        self.size = (26,24)
+        self.index = 1
         self.image = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.position = ((app.screen.get_width() - (self.size[0] * 2) - 10), 0)
+        self.position = ((app.screen.get_width() - (self.size[0] * self.index) - (self.index * 10)), 0)
         self.rect = pygame.Rect(self.position, self.size)
         self.wifi_device = None
         if PLATFORM == 'lin':
             for device in NetworkManager.NetworkManager.GetAllDevices():
                 if device.DeviceType == 2:
                     self.wifi_device = device
+        if PLATFORM == 'win':
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-100.png')), self.size)
 
     def draw(self, surf):
         surf.blit(self.image, self.rect)
@@ -251,19 +269,19 @@ class Wifi:
         if self.wifi_device is None:
             return
         if self.wifi_device.ActiveConnection is None:
-            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-disc.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-disconnected.png')), self.size)
             return
-        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 80:
-            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-full.png')), self.size)
+        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 75:
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-100.png')), self.size)
             return
-        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 60:
-            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-good.png')), self.size)
+        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 50:
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-75.png')), self.size)
             return
-        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 40:
-            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-fair.png')), self.size)
+        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 25:
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-50.png')), self.size)
             return
         else:
-            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-weak.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(asset('wifi-25.png')), self.size)
             return
 
 def draw_page(page_index):
