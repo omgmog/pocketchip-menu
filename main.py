@@ -1,8 +1,15 @@
 import pygame
 import numpy as np
+import psutil
 from pygame.locals import *
 import sys
 import os
+import NetworkManager
+import dbus.mainloop.glib
+
+main_dbus_loop = dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+dbus.set_default_main_loop(main_dbus_loop)
+
 
 PLATFORM = sys.platform[:3]
 BASEDIR = os.path.dirname(__file__) or './'
@@ -44,6 +51,9 @@ class App:
         self.page = Pages.HOME
         self.page_labels = ["Power", "Home", "Settings"]
 
+        #redraw the UI every 5000ms if no events received first
+        pygame.time.set_timer(USEREVENT+1,5000)
+
     def load_image(self, file):
         self.image = pygame.image.load(file)
         self.rect = self.image.get_rect()
@@ -51,8 +61,8 @@ class App:
 
     def run(self):
         while self.running:
-            for event in pygame.event.get():
-                self.do(event)
+            event = pygame.event.wait()
+            self.do(event)
             self.update()
             self.draw()
         pygame.quit()
@@ -164,6 +174,81 @@ def collate_apps():
         icons.append(app_dict)
     return icons
 
+class Battery:
+    def __init__(self):
+        self.parent = None
+        self.size = (24,24)
+        self.image = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.position = ((app.screen.get_width() - self.size[0] - 5), 0)
+        self.rect = pygame.Rect(self.position, self.size)
+        self.battery_present = False
+        if psutil.sensors_battery() is not None:
+            self.battery_present = True
+
+    def draw(self, surf):
+        surf.blit(self.image, self.rect)
+
+    def do(self, event):
+        pass
+
+    def update(self):
+        if self.battery_present is False:
+            return
+        battery_data = psutil.sensors_battery()
+        if battery_data is None: #maybe battery can be unplugged?
+            return
+        if battery_data.power_plugged is True:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/batterycharge.png'), self.size)
+            return
+        if battery_data.percent > 75:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery100.png'), self.size)
+            return
+        if battery_data.percent > 50:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery75.png'), self.size)
+            return
+        if battery_data.percent > 25:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery50.png'), self.size)
+            return
+        else:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/battery25.png'), self.size)
+
+class Wifi:
+    def __init__(self):
+        self.parent = None
+        self.size = (24,24)
+        self.image = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.position = ((app.screen.get_width() - (self.size[0] * 2) - 10), 0)
+        self.rect = pygame.Rect(self.position, self.size)
+        self.wifi_device = None
+        for device in NetworkManager.NetworkManager.GetAllDevices():
+            if device.DeviceType == 2:
+                self.wifi_device = device
+
+    def draw(self, surf):
+        surf.blit(self.image, self.rect)
+
+    def do(self, event):
+        pass
+
+    def update(self):
+        if self.wifi_device is None:
+            return
+        if self.wifi_device.ActiveConnection is None:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-disc.png'), self.size)
+            return
+        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 80:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-full.png'), self.size)
+            return
+        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 60:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-good.png'), self.size)
+            return
+        if self.wifi_device.ActiveConnection.Devices[0].ActiveAccessPoint.Strength > 40:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-fair.png'), self.size)
+            return
+        else:
+            self.image = pygame.transform.scale(pygame.image.load(BASEDIR+'/assets/ui/wifi-weak.png'), self.size)
+            return
+
 def draw_page(page_index):
     if app.page == Pages.POWER:
         app.add(Drawable(img="assets/ui/powerMenuBackground.png"))
@@ -176,6 +261,8 @@ def draw_page(page_index):
     title = font.render(app.page_labels[page_index - 1], True, (255,255,255))
     title_pos_x = (app.screen.get_width() / 2) - (title.get_width()/2)
     app.add(Drawable(img=title, pos=(title_pos_x, 20)))
+    app.add(Battery())
+    app.add(Wifi())
 
     font = pygame.font.SysFont(None, 18)
 
