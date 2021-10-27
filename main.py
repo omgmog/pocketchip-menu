@@ -177,7 +177,7 @@ class Icon(Drawable):
                         print(stdout)
 
 def collate_apps():
-    apps_dir_contents = [f for f in os.listdir(app.apps_dir) if os.path.isfile(os.path.join(app.apps_dir,f))]
+    apps_dir_contents = sorted([f for f in os.listdir(app.apps_dir) if os.path.isfile(os.path.join(app.apps_dir,f))])
     icons = []
     for file in apps_dir_contents:
         filestream = open(app.apps_dir + file, 'r')
