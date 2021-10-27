@@ -15,6 +15,7 @@ cd pocketchip-menu
 sudo apt install unclutter python3-pip python3-numpy python3-pygame python3-dbus
 sudo pip install -r requirements.txt
 chmod +x load.sh
+mkdir -p /home/chip/.config/awesome/
 ln rc.lua /home/chip/.config/awesome/rc.lua
 ```
 
