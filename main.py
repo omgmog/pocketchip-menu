@@ -24,7 +24,7 @@ class Menu:
     def __init__(self):
         self.size = (480, 272)
         self.fullscreen = IS_LINUX
-        self.screen = pygame.display.set_mode(self.size, self.fullscreen)
+        self.screen = pygame.display.set_mode(self.size, self.fullscreen | pygame.DOUBLEBUF)
         self.running = True
         self.visible = True
         self.nav_bar = Nav(self)
