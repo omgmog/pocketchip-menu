@@ -8,7 +8,7 @@ class Wifi(Widget):
     def __init__(self, parent=None):
         self.parent = parent
         self.size = (26, 24)
-        self.pos = (self.parent.screen.get_width() - self.size[0] - EDGE_PADDING, EDGE_PADDING)
+        self.pos = (self.parent.parent.screen.get_width() - self.size[0] - EDGE_PADDING, EDGE_PADDING)
         self.image = None
         self.page = None
         self.persistent = True # always draw

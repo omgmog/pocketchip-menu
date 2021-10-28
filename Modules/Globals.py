@@ -12,6 +12,7 @@ ICONS_DIR = os.path.normpath(os.path.join(BASE_DIR, 'icons'))
 FONT_LATO = os.path.join(ASSETS_DIR, 'Lato-Regular.ttf')
 
 EDGE_PADDING = 10
+SPACE_PADDING = 5
 
 class Pages:
     POWER = 1

@@ -1,8 +1,9 @@
 import pygame
 import __main__
 from Modules.Globals import *
-from Modules.Battery import *
-from Modules.Wifi import *
+from Modules.Widgets.Battery import *
+from Modules.Widgets.Bluetooth import *
+from Modules.Widgets.Wifi import *
 
 class Nav():
     def __init__(self, parent):
@@ -71,8 +72,9 @@ class Nav():
             )
         )
 
-        self.widgets.append(Battery(parent=self.parent))
-        self.widgets.append(Wifi(parent=self.parent))
+        self.widgets.append(Battery(parent=self))
+        self.widgets.append(Wifi(parent=self))
+        self.widgets.append(Bluetooth(parent=self))
 
     def do(self, event):
         if self.parent.visible:
