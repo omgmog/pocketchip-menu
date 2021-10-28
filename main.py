@@ -19,7 +19,7 @@ if IS_LINUX:
 class Menu:
     pygame.init()
     pygame.display.set_caption('Menu')
-    # pygame.mouse.set_visible(False)
+    pygame.mouse.set_visible(False)
 
     def __init__(self):
         self.size = (480, 272)
