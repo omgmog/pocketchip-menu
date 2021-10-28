@@ -1,4 +1,3 @@
-numpy==1.19.5
 pygame==1.9.6; sys.platform == 'linux'
 pygame==2.0.1; sys.platform == 'win32'
 single-process==2.4.1; sys.platform == 'linux'
