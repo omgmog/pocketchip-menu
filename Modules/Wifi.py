@@ -1,6 +1,9 @@
 import pygame
 from Modules.Globals import *
 
+if IS_LINUX:
+    from NetworkManager import NetworkManager
+
 class Wifi(Widget):
     def __init__(self, parent=None):
         self.parent = parent
@@ -12,7 +15,6 @@ class Wifi(Widget):
         self.wifi_device = None
 
         if IS_LINUX:
-            from NetworkManager import NetworkManager
             for device in NetworkManager.GetAllDevices():
                 if device.DeviceType == 2:
                     self.wifi_device = device

@@ -1,7 +1,8 @@
+import pygame
+
 import sys
 import os
 import __main__
-import pygame
 
 IS_LINUX = sys.platform[:3] == 'lin'
 BASE_DIR = os.path.dirname(__main__.__file__) or '.'

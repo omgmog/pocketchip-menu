@@ -1,4 +1,6 @@
 import pygame
+from subprocess import Popen, PIPE
+
 from Modules.Globals import *
 
 class Icon(Button):
@@ -34,7 +36,6 @@ def icon_action(icon):
     if within_bounds(mouse, icon.pos, icon.size):
         if click[0] == 1 and icon.action != None:
             # print('Clicked icon {}. x:{}, y:{}'.format(icon.title, mouse[0], mouse[1]))
-            from subprocess import Popen, PIPE
             process = Popen(icon.action, stdout=PIPE, stderr=PIPE, shell = True)
             stdout, stderr = process.communicate()
             print(stdout)

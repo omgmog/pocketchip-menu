@@ -1,5 +1,7 @@
 import pygame
 from Modules.Globals import *
+if IS_LINUX:
+    import psutil
 
 class Battery(Widget):
     def __init__(self, parent=None):
@@ -12,7 +14,6 @@ class Battery(Widget):
         self.persistent = True # always draw
         
         if IS_LINUX:
-            import psutil
             if psutil.sensors_battery() is not None:
                 self.battery_present = True
         else:
