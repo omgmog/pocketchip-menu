@@ -68,8 +68,6 @@ class Menu:
 
         self.nav_bar.update()
 
-        self.delta = self.clock.tick(30) / 1000.0
-
     def draw(self):
         for page in self.pages:
             if page.visible:
@@ -78,8 +76,6 @@ class Menu:
             page.draw(self.screen)
             
         self.nav_bar.draw(self.screen)
-
-        pygame.display.update()
 
     def run(self):
         self.pages.append(Power(self))
@@ -96,6 +92,9 @@ class Menu:
             self.do(pygame.event.wait())
             self.update()
             self.draw()
+
+            self.delta = self.clock.tick(30) / 1000.0
+            pygame.display.update()
         pygame.quit()
         quit()
 
