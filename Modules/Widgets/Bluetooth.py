@@ -21,11 +21,11 @@ class Bluetooth(Widget):
            pass
         else:
             # on other platforms just show an icon 
-            self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-connected.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-connected.png')).convert_alpha(), self.size)
 
     def update(self):
         if self.bt_device is None:
-            self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-disconnected.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-disconnected.png')).convert_alpha(), self.size)
             return
         else:
-            self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-connected.png')), self.size)
+            self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-connected.png')).convert_alpha(), self.size)

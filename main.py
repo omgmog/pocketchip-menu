@@ -73,7 +73,7 @@ class Menu:
         for page in self.pages:
             if page.visible:
                 if page.image:
-                    self.screen.blit(pygame.image.load(page.image), (0,0))
+                    self.screen.blit(pygame.image.load(page.image).convert_alpha(), (0,0))
             page.draw(self.screen)
             
         self.nav_bar.draw(self.screen)

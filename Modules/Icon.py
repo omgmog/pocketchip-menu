@@ -7,7 +7,7 @@ class Icon(Button):
     def __init__(self, image=None, title=None, pos=None, size=None, action=None):
         self.image = image
         if self.image:
-            self.image = pygame.image.load(self.image)
+            self.image = pygame.image.load(self.image).convert_alpha()
         self.title = title
         self.pos = pos
         self.size = size

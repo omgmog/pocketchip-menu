@@ -34,7 +34,7 @@ class Drawable():
     def __init__(self, image=None, pos=(0,0), size=None):
         self.image = image
         if self.image:
-            self.image = pygame.image.load(self.image)
+            self.image = pygame.image.load(self.image).convert_alpha()
         self.pos = pos
         self.size = size
         if not self.size:
@@ -66,7 +66,7 @@ class PageButton(Button):
     def draw(self, surf):
         if self.image:
             image_path = os.path.join(ASSETS_DIR, self.image)
-            button_image = pygame.image.load(image_path)
+            button_image = pygame.image.load(image_path).convert_alpha()
             if self.size:
                 button_image = pygame.transform.scale(button_image, self.size)
 
