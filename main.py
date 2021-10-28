@@ -47,13 +47,13 @@ class Menu:
                     self.active_page = len(self.pages)
 
     def do(self, event):
-        if event.type == QUIT:
+        if event.type == pygame.QUIT:
             self.running = False
 
-        elif event.type == KEYDOWN:
-            if event.key == K_LEFT:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
                 self.goToPage("left")
-            elif event.key == K_RIGHT:
+            elif event.key == pygame.K_RIGHT:
                 self.goToPage("right")
         
         for page in self.pages:
