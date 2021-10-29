@@ -34,6 +34,7 @@ class Menu:
         self.pages = []
         self.delta = 0.0
         self.clock = pygame.time.Clock()
+        self.screen_center = (pygame.display.Info().current_w/2,pygame.display.Info().current_h/2)
 
     def do(self, event):
         if event.type == pygame.QUIT:

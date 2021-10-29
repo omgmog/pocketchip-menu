@@ -13,6 +13,7 @@ FONT_LATO = os.path.join(ASSETS_DIR, 'Lato-Regular.ttf')
 
 EDGE_PADDING = 10
 SPACE_PADDING = 5
+BUTTON_PADDING = (20, 6, 20, 8) # left, top, right, bottom
 
 class Pages:
     POWER = 1
