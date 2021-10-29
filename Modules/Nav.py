@@ -1,9 +1,9 @@
 import pygame
 import __main__
 from Modules.Globals import *
-from Modules.Widgets.Battery import *
-from Modules.Widgets.Bluetooth import *
-from Modules.Widgets.Wifi import *
+from Modules.NavWidgets.Battery import *
+from Modules.NavWidgets.Bluetooth import *
+from Modules.NavWidgets.Wifi import *
 
 class Nav():
     def __init__(self, parent):
