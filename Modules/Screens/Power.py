@@ -5,16 +5,22 @@ if IS_LINUX:
     import dbus
 
 def reboot():
-    bus = dbus.SystemBus()
-    obj = bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
-    iface = dbus.Interface(obj, 'org.freedesktop.login1.Manager')
-    iface.Reboot(1)
+    if IS_LINUX:
+        bus = dbus.SystemBus()
+        obj = bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
+        iface = dbus.Interface(obj, 'org.freedesktop.login1.Manager')
+        iface.Reboot(1)
+    else:
+        print('reboot')
 
 def poweroff():
-    bus = dbus.SystemBus()
-    obj = bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
-    iface = dbus.Interface(obj, 'org.freedesktop.login1.Manager')
-    iface.PowerOff(1)
+    if IS_LINUX:
+        bus = dbus.SystemBus()
+        obj = bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
+        iface = dbus.Interface(obj, 'org.freedesktop.login1.Manager')
+        iface.PowerOff(1)
+    else:
+        print('power off')
 
 class Power():
     index = Pages.POWER
@@ -57,10 +63,10 @@ class Power():
             )
 
     def do(self, event):
-        if IS_LINUX and self.visible:
+        if self.visible:
             for icon in self.icons:
                 try:
-                    icon_action(icon=icon)
+                    icon.do(event)
                 except:
                     print(f'Failed to {icon.title} due to dbus error.')
 

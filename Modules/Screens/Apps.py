@@ -53,7 +53,7 @@ class Apps():
                     title=icon['title'],
                     pos=pos,
                     size=size,
-                    action=icon['execute']
+                    function=lambda icon=icon:run_cmd(icon['execute'])
                 )
             )
 
@@ -61,7 +61,7 @@ class Apps():
     def do(self, event):
         if self.visible:
             for icon in self.icons:
-                icon_action(icon=icon)
+                icon.do(event)
                         
     def update(self):
         pass

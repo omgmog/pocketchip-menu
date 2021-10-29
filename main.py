@@ -19,7 +19,7 @@ if IS_LINUX:
 class Menu:
     pygame.init()
     pygame.display.set_caption('Menu')
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN])
+    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN])
     if IS_LINUX:
         pygame.mouse.set_visible(False)
 
@@ -35,28 +35,15 @@ class Menu:
         self.delta = 0.0
         self.clock = pygame.time.Clock()
 
-    def goToPage(self, direction=None, page=None):
-        if page and 1 <= page <= len(self.pages):
-            self.active_page = page
-        else:
-            if direction == "left":
-                self.active_page -= 1
-                if self.active_page < 1:
-                    self.active_page = 1
-            elif direction == "right":
-                self.active_page += 1
-                if self.active_page >= len(self.pages):
-                    self.active_page = len(self.pages)
-
     def do(self, event):
         if event.type == pygame.QUIT:
             self.running = False
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                self.goToPage("left")
+                self.nav_bar.goToPage(self, "left")
             elif event.key == pygame.K_RIGHT:
-                self.goToPage("right")
+                self.nav_bar.goToPage(self, "right")
         
         for page in self.pages:
             page.do(event)

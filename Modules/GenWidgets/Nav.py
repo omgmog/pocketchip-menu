@@ -15,29 +15,27 @@ class Nav():
         # go to power from apps
         self.buttons.append(
             PageButton(
-                parent=self.parent,
                 page=Pages.APPS,
-                target=1,
                 image='powerIcon.png',
                 pos=(
                     EDGE_PADDING, 
                     self.parent.screen.get_height() - 22 - EDGE_PADDING
                 ),
-                size=(45,22)
+                size=(45,22),
+                function=lambda:self.goToPage(self.parent, page=1)
             )
         )
         # go to apps from power
         self.buttons.append(
             PageButton(
-                parent=self.parent,
                 page=Pages.POWER,
-                target=2,
                 image='nextIcon.png',
                 pos=(
                     self.parent.screen.get_width() - 64, 
                     self.parent.screen.get_height()/2 - 32
                 ),
-                size=(64,64)
+                size=(64,64),
+                function=lambda:self.goToPage(self.parent, page=2)
 
             )
         )
@@ -45,29 +43,29 @@ class Nav():
         # go to settings from apps
         self.buttons.append(
             PageButton(
-                parent=self.parent,
                 page=Pages.APPS,
-                target=3,
                 image='settingsIcon.png',
                 pos=(
                     self.parent.screen.get_width() - 45 - EDGE_PADDING, 
                     self.parent.screen.get_height() - 22 - EDGE_PADDING
                 ),
-                size=(45,22)
+                size=(45,22),
+                function=lambda:self.goToPage(self.parent, page=3)
+
+
             )
         )
         # go to apps from settings
         self.buttons.append(
             PageButton(
-                parent=self.parent,
                 page=Pages.SETTINGS,
-                target=2,
                 image='backIcon.png',
                 pos=(
                     0, 
                     self.parent.screen.get_height()/2 - 32
                 ),
-                size=(64,64)
+                size=(64,64),
+                function=lambda:self.goToPage(self.parent, page=2)
 
             )
         )
@@ -76,6 +74,19 @@ class Nav():
         self.widgets.append(Wifi(parent=self))
         self.widgets.append(Bluetooth(parent=self))
 
+
+    def goToPage(self, menu, direction=None, page=None):
+        if page and 1 <= page <= len(menu.pages):
+            menu.active_page = page
+        else:
+            if direction == "left":
+                menu.active_page -= 1
+                if menu.active_page < 1:
+                    menu.active_page = 1
+            elif direction == "right":
+                menu.active_page += 1
+                if menu.active_page >= len(menu.pages):
+                    menu.active_page = len(menu.pages)
     def do(self, event):
         if self.parent.visible:
             for button in self.buttons:

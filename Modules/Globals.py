@@ -29,3 +29,13 @@ def assetpath(filename, path=ASSETS_DIR):
 
 def iconpath(filename):
     return assetpath(filename, path=ICONS_DIR)
+
+
+def run_cmd(command):
+    print('Running cmd: {}'.format(command))
+    from subprocess import Popen, PIPE
+    process = Popen(command, stdout=PIPE, stderr=PIPE, shell = True)
+    stdout, stderr = process.communicate()
+    print(stdout)
+    if stderr:
+        print(stderr)

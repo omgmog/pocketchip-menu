@@ -21,24 +21,29 @@ class Drawable():
             surf.blit(self.image, self.pos)
 
 class Button(Drawable):
-    def __init__(self, image=None, pos=(0,0), size=(0,0), action=None):
+    def __init__(self, image=None, pos=(0,0), size=(0,0), function=None):
         self.image = image
         self.pos = pos
         self.size = size
-        self.action = action
+        self.function = function
     
     def do(self, event):
-        pass
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if within_bounds(mouse, self.pos, self.size):
+            if event.type == pygame.MOUSEBUTTONDOWN \
+            and click[0] == True \
+            and self.function != None:
+                self.function()
 
 class PageButton(Button):
-    def __init__(self, parent=None, image=None, pos=(0,0), size=(0,0), action=None, page=None, target=None):
+    def __init__(self, parent=None, image=None, pos=(0,0), size=(0,0), page=None, function=None):
         self.parent = parent
         self.image = image
         self.pos = pos
         self.size = size
-        self.action = action
         self.page = page
-        self.target = target
+        self.function = function
     
     def draw(self, surf):
         if self.image:
@@ -53,11 +58,3 @@ class PageButton(Button):
                 button_image.set_alpha(255)
 
             surf.blit(button_image, self.pos)
-
-    def do(self, event):
-        if self.target:
-            mouse = pygame.mouse.get_pos()
-            click = pygame.mouse.get_pressed()
-            if within_bounds(mouse, self.pos, self.size):
-                if click[0] == 1:
-                    self.parent.goToPage(page=self.target)

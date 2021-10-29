@@ -5,7 +5,7 @@ from Modules.Globals import *
 from Modules.GenWidgets.Widget import *
 
 class Icon(Button):
-    def __init__(self, image=None, title=None, pos=None, size=None, action=None, function=None):
+    def __init__(self, image=None, title=None, pos=None, size=None, function=None):
         self.image = image
         if self.image:
             self.image = pygame.image.load(self.image).convert_alpha()
@@ -14,7 +14,6 @@ class Icon(Button):
         self.size = size
         if not self.size:
             self.size = self.image.get_rect()
-        self.action = action
         self.function = function
     
     def draw(self, surf):
@@ -31,17 +30,4 @@ class Icon(Button):
             text_rect = text.get_rect()
             text_rect.midtop = (self.pos[0]+(self.size[0]/2), self.pos[1]+self.size[1])
             surf.blit(text, text_rect)
-
-def icon_action(icon):
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    if within_bounds(mouse, icon.pos, icon.size):
-        if click[0] == 1 and icon.action != None:
-            # print('Clicked icon {}. x:{}, y:{}'.format(icon.title, mouse[0], mouse[1]))
-            process = Popen(icon.action, stdout=PIPE, stderr=PIPE, shell = True)
-            stdout, stderr = process.communicate()
-            print(stdout)
-            if stderr:
-                print(stderr)
-        if click[0] == 1 and icon.function != None:
-            icon.function()
+            
