@@ -2,6 +2,7 @@ import pygame
 from subprocess import Popen, PIPE
 
 from Modules.Globals import *
+from Modules.GenWidgets.Widget import *
 
 class Icon(Button):
     def __init__(self, image=None, title=None, pos=None, size=None, action=None):

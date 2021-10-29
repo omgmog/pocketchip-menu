@@ -1,7 +1,7 @@
 import pygame
 import os
 from Modules.Globals import *
-from Modules.Icon import *
+from Modules.GenWidgets.Icon import *
 
 
 class Apps():

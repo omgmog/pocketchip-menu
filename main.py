@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from Modules.Globals import *
-from Modules.Nav import *
+from Modules.GenWidgets.Nav import *
 from Modules.Screens.Power import *
 from Modules.Screens.Apps import *
 from Modules.Screens.Settings import *

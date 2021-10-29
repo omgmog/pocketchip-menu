@@ -1,5 +1,6 @@
 import pygame
 from Modules.Globals import *
+from Modules.GenWidgets.Widget import *
 if IS_LINUX:
     import psutil
 
