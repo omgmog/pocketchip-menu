@@ -59,17 +59,15 @@ class Apps():
 
 
     def do(self, event):
-        if self.visible:
-            for icon in self.icons:
-                icon.do(event)
+        for icon in self.icons:
+            icon.do(event)
                         
     def update(self):
         pass
 
     def draw(self, surf):
-        if self.visible:
-            for icon in self.icons:
-                icon.draw(surf)
+        for icon in self.icons:
+            icon.draw(surf)
 
 if __name__ == '__main__':
     pass

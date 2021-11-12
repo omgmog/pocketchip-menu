@@ -11,23 +11,34 @@ class Icon(Button):
             self.image = pygame.image.load(self.image).convert_alpha()
         self.title = title
         self.pos = pos
+        if not self.pos:
+            self.pos = (0,0)
+        self.pos = (self.pos[0] - 10, self.pos[1])
         self.size = size
         if not self.size:
             self.size = self.image.get_rect()
+        self.size = (self.size[0]+20, self.size[1]+20)
         self.function = function
+        
+        
+        self.surface = pygame.Surface((self.size[0], self.size[1]), pygame.SRCALPHA)
+        self.surface_rect = self.surface.get_rect(topleft=self.pos)
     
     def draw(self, surf):
-        if within_bounds(pygame.mouse.get_pos(), self.pos, self.size):
+        # empty fill to clear what's been drawn
+        self.surface.fill((0,0,0,0))
+        if within_bounds(pygame.mouse.get_pos(), self.surface_rect):
             self.image.set_alpha(100)
         else:
             self.image.set_alpha(255)
 
-        surf.blit(self.image, self.pos)
+        self.surface.blit(self.image, (10,0))
 
         if self.title:
-            font = pygame.font.Font(FONT_LATO,14)
-            text = font.render(self.title, True, (255, 255, 255))
+            text = pygame.font.Font(FONT_LATO,14).render(self.title, True, (255, 255, 255))
             text_rect = text.get_rect()
-            text_rect.midtop = (self.pos[0]+(self.size[0]/2), self.pos[1]+self.size[1])
-            surf.blit(text, text_rect)
+            text_rect.midbottom = (self.size[0]/2,self.size[1])
+            self.surface.blit(text, text_rect)
+
+        surf.blit(self.surface, self.surface_rect)
             

@@ -13,41 +13,36 @@ class Settings():
         self.buttons = [
             TextButton(
                 text='Testing 1',
-                pos=(self.parent.screen_center[0], 70),
+                pos=(pygame.display.Info().current_w/2, 70),
                 function=lambda:print('clicked 1')
             ),
             TextButton(
                 text='Testing 2',
-                pos=(self.parent.screen_center[0], 120),
+                pos=(pygame.display.Info().current_w/2, 120),
                 function=lambda:print('clicked 2')
             ),
             TextButton(
                 text='Button with lots of text',
-                pos=(self.parent.screen_center[0], 170),
+                pos=(pygame.display.Info().current_w/2, 170),
                 function=lambda:print('wow that was huge')
             ),
             TextButton(
                 text='x',
-                pos=(self.parent.screen_center[0], 220),
+                pos=(pygame.display.Info().current_w/2, 220),
                 function=lambda:print('wow that was small')
             )
         ]
 
     def do(self, event):
-        if self.visible:
-            for button in self.buttons:
-                button.do(event)
-            pass
+        for button in self.buttons:
+            button.do(event)
 
     def update(self):
-        if self.visible:
-            pass
+        pass
 
     def draw(self, surf):
-        if self.visible:
-            for button in self.buttons:
-                button.draw(surf)
-            pass
+        for button in self.buttons:
+            button.draw(surf)
 
     
 if __name__ == '__main__':

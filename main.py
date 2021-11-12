@@ -19,7 +19,7 @@ if IS_LINUX:
 class Menu:
     pygame.init()
     pygame.display.set_caption('Menu')
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN])
+    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
     if IS_LINUX:
         pygame.mouse.set_visible(False)
 
@@ -34,7 +34,7 @@ class Menu:
         self.pages = []
         self.delta = 0.0
         self.clock = pygame.time.Clock()
-        self.screen_center = (pygame.display.Info().current_w/2,pygame.display.Info().current_h/2)
+        self.dialog = None
 
     def do(self, event):
         if event.type == pygame.QUIT:
@@ -47,24 +47,37 @@ class Menu:
                 self.nav_bar.goToPage(self, "right")
         
         for page in self.pages:
-            page.do(event)
+            if page.visible:
+                page.do(event)
 
         self.nav_bar.do(event)
+
+        if self.dialog and self.dialog.visible:
+                self.dialog.do(event)
             
     def update(self):
         for page in self.pages:
-            page.update()
+            if page.visible:
+                page.update()
 
         self.nav_bar.update()
 
     def draw(self):
+        self.screen.fill((0,0,0,0))
+        page_surface = pygame.Surface(self.size, pygame.SRCALPHA)
         for page in self.pages:
             if page.visible:
                 if page.image:
-                    self.screen.blit(pygame.image.load(page.image).convert_alpha(), (0,0))
-            page.draw(self.screen)
-            
-        self.nav_bar.draw(self.screen)
+                    page_surface.blit(pygame.image.load(page.image).convert(), (0,0))
+                page.draw(page_surface)  
+        self.nav_bar.draw(page_surface)
+        if self.dialog:
+            if self.dialog.visible:
+                self.dialog.draw(page_surface) 
+        self.screen.blit(page_surface, page_surface.get_rect())
+
+        # debug center
+        # pygame.draw.rect(self.screen, (255,255,0), pygame.Rect(self.size[0]/2,self.size[1]/2,0,0),3)
 
     def run(self):
         self.pages.append(Power(self))

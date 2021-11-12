@@ -21,7 +21,9 @@ class Pages:
     SETTINGS = 3
 
 
-def within_bounds(mouse,pos,area):
+def within_bounds(mouse,rect):
+    pos = (rect[0], rect[1])
+    area = (rect[2], rect[3])
     in_bounds = pos[0]+area[0]>mouse[0]>pos[0] and pos[1]+area[1]>mouse[1]>pos[1]
     return in_bounds
 
