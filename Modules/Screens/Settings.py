@@ -1,6 +1,6 @@
 import pygame
 from Modules.Globals import *
-from Modules.GenWidgets.Widget import TextButton
+from Modules.GenWidgets.Widget import TextButton,Slider
 
 class Settings():
     index = Pages.SETTINGS
@@ -10,7 +10,7 @@ class Settings():
         self.visible = False
         self.parent = parent
         self.image = assetpath('settingsBackground.png')
-        self.buttons = [
+        self.widgets = [
             TextButton(
                 text='Testing 1',
                 pos=(pygame.display.Info().current_w/2, 70),
@@ -21,10 +21,12 @@ class Settings():
                 pos=(pygame.display.Info().current_w/2, 120),
                 function=lambda:print('clicked 2')
             ),
-            TextButton(
-                text='Button with lots of text',
-                pos=(pygame.display.Info().current_w/2, 170),
-                function=lambda:print('wow that was huge')
+            Slider(
+                label='Volume',
+                size=(200,40),
+                pos=((pygame.display.Info().current_w/2) - 100, 150),
+                value=75,
+                function=lambda:print('clicked the slider')
             ),
             TextButton(
                 text='x',
@@ -34,15 +36,18 @@ class Settings():
         ]
 
     def do(self, event):
-        for button in self.buttons:
-            button.do(event)
+        for widget in self.widgets:
+            widget.do(event)
 
     def update(self):
+        for widget in self.widgets:
+            if hasattr(widget, 'update'):
+                widget.update()
         pass
 
     def draw(self, surf):
-        for button in self.buttons:
-            button.draw(surf)
+        for widget in self.widgets:
+            widget.draw(surf)
 
     
 if __name__ == '__main__':

@@ -6,6 +6,65 @@ class Widget():
         if self.image:
             surf.blit(self.image, self.pos)
 
+class Slider():
+    def __init__(self, size=None, pos=None, label=None, function=None, value=50, minVal=0, maxVal=100):
+        self.size = size
+        self.pos = pos
+        self.label = label
+        self.value = value
+        self.min = minVal
+        self.max = maxVal
+        self.function = function
+
+        self.surface = pygame.Surface((self.size[0], self.size[1]), pygame.SRCALPHA)
+        self.surface_rect = self.surface.get_rect(topleft=self.pos)
+
+        self.handle_width = 10
+        self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
+        
+
+    def update(self):
+        self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
+
+    def draw(self, surf):
+        # container
+        self.surface.fill((0,0,0,0))
+        # rail
+        rail = pygame.Surface((self.size[0], self.size[1]-30), pygame.SRCALPHA)
+        rail.fill((255,255,255, 80))
+        # handle
+        handle = pygame.Surface((self.handle_width,self.size[1]), pygame.SRCALPHA)
+        handle.fill((255,255,255))
+
+
+        self.surface.blit(rail, (0,25))
+        self.surface.blit(handle, (self.handle_x,20))
+        font = pygame.font.Font(FONT_LATO,14)
+        if self.label:
+            text_string = '{}: {}'.format(self.label, self.value)
+        else: 
+            text_string = str(self.value)
+        rendered_text = font.render(text_string, True, (255,255,255))
+        text_rect = rendered_text.get_rect(midtop=(self.size[0]/2,0))
+        self.surface.blit(rendered_text, text_rect)
+
+        surf.blit(self.surface, self.pos)
+
+        pass
+    def do(self, event):
+        # using click detection rather than events so we can drag the slider
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if within_bounds(mouse, self.surface_rect):
+            if click[0] == 1:
+                slider_width = self.size[0]
+                clicked_pos = mouse[0] - self.pos[0]
+                self.value = (self.max/slider_width) * clicked_pos
+            if event.type == pygame.MOUSEBUTTONUP:
+                if self.function != None: 
+                    print('clicked Slider "{}"'.format(self.label))
+                    self.function()
+
 class ConfirmDialog():
     def __init__(self, parent=None, message='Are you sure?', options=None):
         self.parent = parent
