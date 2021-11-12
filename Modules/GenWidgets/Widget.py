@@ -7,7 +7,7 @@ class Widget():
             surf.blit(self.image, self.pos)
 
 class Slider():
-    def __init__(self, size=None, pos=None, label=None, function=None, value=50, minVal=0, maxVal=100):
+    def __init__(self, size=None, pos=None, label=None, icons=None, function=None, value=50, minVal=0, maxVal=100):
         self.size = size
         self.pos = pos
         self.label = label
@@ -15,6 +15,7 @@ class Slider():
         self.min = minVal
         self.max = maxVal
         self.function = function
+        self.icons = icons
 
         self.surface = pygame.Surface((self.size[0], self.size[1]), pygame.SRCALPHA)
         self.surface_rect = self.surface.get_rect(topleft=self.pos)
@@ -48,9 +49,16 @@ class Slider():
         text_rect = rendered_text.get_rect(midtop=(self.size[0]/2,0))
         self.surface.blit(rendered_text, text_rect)
 
-        surf.blit(self.surface, self.pos)
+        # icons ....
+        if self.icons:
+            icon_size = (24,24)
+            positions = [self.pos, (self.pos[0] + self.size[0] - icon_size[0], self.pos[1])] # left, right
+            for index,icon in enumerate(self.icons): 
+                icon_asset = pygame.image.load(assetpath(icon)).convert_alpha()
+                image = pygame.transform.scale(icon_asset, icon_size)
+                surf.blit(image, positions[index])
 
-        pass
+        surf.blit(self.surface, self.pos)
     def do(self, event):
         # using click detection rather than events so we can drag the slider
         mouse = pygame.mouse.get_pos()
@@ -213,8 +221,7 @@ class PageButton(Button):
         # empty fill to clear what's been drawn
         self.surface.fill((0,0,0,0))
         if self.image:
-            image_path = os.path.join(ASSETS_DIR, self.image)
-            button_image = pygame.image.load(image_path).convert_alpha()
+            button_image = pygame.image.load(assetpath(self.image)).convert_alpha()
             if self.size:
                 button_image = pygame.transform.scale(button_image, self.size)
 

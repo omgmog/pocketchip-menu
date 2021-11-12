@@ -26,12 +26,16 @@ class Settings():
                 size=(200,40),
                 pos=((pygame.display.Info().current_w/2) - 100, 150),
                 value=75,
+                icons=('volumeIconLo.png', 'volumeIconHi.png'),
                 function=lambda:print('clicked the slider')
             ),
-            TextButton(
-                text='x',
-                pos=(pygame.display.Info().current_w/2, 220),
-                function=lambda:print('wow that was small')
+            Slider(
+                label='Brightness',
+                size=(200,40),
+                pos=((pygame.display.Info().current_w/2) - 100, 200),
+                value=50,
+                icons=('brightnessIconLo.png', 'brightnessIconHi.png'),
+                function=lambda:print('clicked the slider')
             )
         ]
 
