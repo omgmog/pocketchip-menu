@@ -15,8 +15,8 @@ class Apps():
             read_config = open(os.path.join(APPS_DIR, app_config), 'r')
             config_data = dict()
             for line in read_config:
-                key = line.split('=')[0]
-                value = line.split('=')[1].strip()
+                key = line.partition('=')[0]
+                value = line.partition('=')[-1].strip()
                 config_data[key] = value
             self.icons_data.append(config_data)
 
