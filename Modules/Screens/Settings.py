@@ -10,33 +10,35 @@ class Settings():
         self.visible = False
         self.parent = parent
         self.image = assetpath('settingsBackground.png')
+        volume_slider = Slider(
+            label='Volume',
+            size=(200,40),
+            pos=((pygame.display.Info().current_w/2) - 100, 150),
+            value=75,
+            icons=('volumeIconLo.png', 'volumeIconHi.png'),
+            function=lambda:print('clicked the slider')
+        )
+        brightness_slider = Slider(
+            label='Brightness',
+            size=(200,40),
+            pos=((pygame.display.Info().current_w/2) - 100, 200),
+            value=50,
+            icons=('brightnessIconLo.png', 'brightnessIconHi.png'),
+            function=lambda:print('clicked the slider')
+        )
         self.widgets = [
             TextButton(
-                text='Testing 1',
+                text='Set volume to 100',
                 pos=(pygame.display.Info().current_w/2, 70),
-                function=lambda:print('clicked 1')
+                function=lambda:volume_slider.setValue(100)
             ),
             TextButton(
-                text='Testing 2',
+                text='Set brightness to 0',
                 pos=(pygame.display.Info().current_w/2, 120),
-                function=lambda:print('clicked 2')
+                function=lambda:brightness_slider.setValue(0)
             ),
-            Slider(
-                label='Volume',
-                size=(200,40),
-                pos=((pygame.display.Info().current_w/2) - 100, 150),
-                value=75,
-                icons=('volumeIconLo.png', 'volumeIconHi.png'),
-                function=lambda:print('clicked the slider')
-            ),
-            Slider(
-                label='Brightness',
-                size=(200,40),
-                pos=((pygame.display.Info().current_w/2) - 100, 200),
-                value=50,
-                icons=('brightnessIconLo.png', 'brightnessIconHi.png'),
-                function=lambda:print('clicked the slider')
-            )
+            volume_slider,
+            brightness_slider
         ]
 
     def do(self, event):

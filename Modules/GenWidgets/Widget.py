@@ -11,7 +11,7 @@ class Slider():
         self.size = size
         self.pos = pos
         self.label = label
-        self.value = value
+        self.setValue(value)    # use the setter as we have it
         self.min = minVal
         self.max = maxVal
         self.function = function
@@ -23,6 +23,9 @@ class Slider():
         self.handle_width = 10
         self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
         
+    def setValue(self, value):
+        print('Setting the value to {}'.format(value))
+        self.value = value
 
     def update(self):
         self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
@@ -67,7 +70,7 @@ class Slider():
             if click[0] == 1:
                 slider_width = self.size[0]
                 clicked_pos = mouse[0] - self.pos[0]
-                self.value = (self.max/slider_width) * clicked_pos
+                self.setValue((self.max/slider_width) * clicked_pos)
             if event.type == pygame.MOUSEBUTTONUP:
                 if self.function != None: 
                     print('clicked Slider "{}"'.format(self.label))
