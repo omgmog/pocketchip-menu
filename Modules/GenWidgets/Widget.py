@@ -25,7 +25,7 @@ class Slider():
         
     def setValue(self, value):
         print('Setting the value to {}'.format(value))
-        self.value = value
+        self.value = int(round(value, 0))
 
     def update(self):
         self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
