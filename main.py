@@ -10,10 +10,8 @@ from Modules.Screens.Apps import *
 from Modules.Screens.Settings import *
 
 if IS_LINUX:
-    from single_process import single_process
     import dbus.mainloop.glib
 
-    single_process()
     main_dbus_loop = dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     dbus.set_default_main_loop(main_dbus_loop)
 
@@ -21,7 +19,7 @@ if IS_LINUX:
 class Menu:
     pygame.init()
     pygame.display.set_caption('Menu')
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
+#    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
     if IS_LINUX:
         pygame.mouse.set_visible(False)
 
@@ -38,25 +36,26 @@ class Menu:
         self.clock = pygame.time.Clock()
         self.dialog = None
 
-    def do(self, event):
-        if event.type == pygame.QUIT:
-            self.running = False
+    def do(self, eventlist):
+        for event in eventlist:
+            if event.type == pygame.QUIT:
+                self.running = False
 
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                self.nav_bar.goToPage(self, "left")
-            elif event.key == pygame.K_RIGHT:
-                self.nav_bar.goToPage(self, "right")
-        
-        for page in self.pages:
-            if page.visible:
-                page.do(event)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.nav_bar.goToPage(self, "left")
+                elif event.key == pygame.K_RIGHT:
+                    self.nav_bar.goToPage(self, "right")
 
-        self.nav_bar.do(event)
+            for page in self.pages:
+                if page.visible:
+                    page.do(event)
 
-        if self.dialog and self.dialog.visible:
-                self.dialog.do(event)
-            
+            self.nav_bar.do(event)
+
+            if self.dialog and self.dialog.visible:
+                    self.dialog.do(event)
+
     def update(self):
         for page in self.pages:
             if page.visible:
@@ -93,7 +92,7 @@ class Menu:
                     page.visible = True
                 else:
                     page.visible = False
-            self.do(pygame.event.wait())
+            self.do(pygame.fastevent.get())
             self.update()
             self.draw()
 
@@ -105,5 +104,6 @@ class Menu:
 # kick it off
 
 if __name__ == '__main__':
+    pygame.fastevent.init()
     menu = Menu()
     menu.run()
