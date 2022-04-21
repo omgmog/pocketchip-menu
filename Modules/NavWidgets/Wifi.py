@@ -16,11 +16,14 @@ class Wifi(Widget):
         self.wifi_device = None
 
         if IS_LINUX:
-            for device in NetworkManager.GetAllDevices():
-                if device.DeviceType == 2:
-                    self.wifi_device = device
+            try:
+                for device in NetworkManager.GetAllDevices():
+                    if device.DeviceType == 2:
+                        self.wifi_device = device
+            except:
+                self.image = pygame.transform.scale(pygame.image.load(assetpath('wifi-disconnected.png')).convert_alpha(), self.size)
         else:
-            # on other platforms just show an icon 
+            # on other platforms just show an icon
             self.image = pygame.transform.scale(pygame.image.load(assetpath('wifi-100.png')).convert_alpha(), self.size)
 
     def update(self):
