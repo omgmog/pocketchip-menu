@@ -15,11 +15,9 @@ if IS_LINUX:
     main_dbus_loop = dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     dbus.set_default_main_loop(main_dbus_loop)
 
-
 class Menu:
     pygame.init()
     pygame.display.set_caption('Menu')
-#    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
     if IS_LINUX:
         pygame.mouse.set_visible(False)
 
@@ -61,8 +59,6 @@ class Menu:
             if page.visible:
                 page.update()
 
-        self.nav_bar.update()
-
     def draw(self):
         self.screen.fill((0,0,0,0))
         page_surface = pygame.Surface(self.size, pygame.SRCALPHA)
@@ -70,21 +66,17 @@ class Menu:
             if page.visible:
                 if page.image:
                     page_surface.blit(pygame.image.load(page.image).convert(), (0,0))
-                page.draw(page_surface)  
+                page.draw(page_surface)
         self.nav_bar.draw(page_surface)
         if self.dialog:
             if self.dialog.visible:
-                self.dialog.draw(page_surface) 
+                self.dialog.draw(page_surface)
         self.screen.blit(page_surface, page_surface.get_rect())
-
-        # debug center
-        # pygame.draw.rect(self.screen, (255,255,0), pygame.Rect(self.size[0]/2,self.size[1]/2,0,0),3)
 
     def run(self):
         self.pages.append(Power(self))
         self.pages.append(Apps(self))
         self.pages.append(Settings(self))
-        
 
         while self.running:
             for page in self.pages:
@@ -100,8 +92,6 @@ class Menu:
             pygame.display.update()
         pygame.quit()
         quit()
-
-# kick it off
 
 if __name__ == '__main__':
     pygame.fastevent.init()

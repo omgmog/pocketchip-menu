@@ -22,7 +22,7 @@ class Slider():
 
         self.handle_width = 10
         self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
-        
+
     def setValue(self, value):
         print('Setting the value to {}'.format(value))
         self.value = int(round(value, 0))
@@ -46,7 +46,7 @@ class Slider():
         font = pygame.font.Font(FONT_LATO,14)
         if self.label:
             text_string = '{}: {}'.format(self.label, self.value)
-        else: 
+        else:
             text_string = str(self.value)
         rendered_text = font.render(text_string, True, (255,255,255))
         text_rect = rendered_text.get_rect(midtop=(self.size[0]/2,0))
@@ -56,7 +56,7 @@ class Slider():
         if self.icons:
             icon_size = (24,24)
             positions = [self.pos, (self.pos[0] + self.size[0] - icon_size[0], self.pos[1])] # left, right
-            for index,icon in enumerate(self.icons): 
+            for index,icon in enumerate(self.icons):
                 icon_asset = pygame.image.load(assetpath(icon)).convert_alpha()
                 image = pygame.transform.scale(icon_asset, icon_size)
                 surf.blit(image, positions[index])
@@ -72,7 +72,7 @@ class Slider():
                 clicked_pos = mouse[0] - self.pos[0]
                 self.setValue((self.max/slider_width) * clicked_pos)
             if event.type == pygame.MOUSEBUTTONUP:
-                if self.function != None: 
+                if self.function != None:
                     print('clicked Slider "{}"'.format(self.label))
                     self.function()
 
@@ -109,7 +109,7 @@ class ConfirmDialog():
     def draw(self, surf):
         # empty fill to clear what's been drawn
         self.surface.fill((0,0,0,0))
-        
+
         # draw a background fill
         dialog_rect = pygame.Rect(0,0, self.size[0], self.size[1], topleft=(0,0))
         pygame.draw.rect(self.surface, (100,100,100), dialog_rect)
@@ -118,7 +118,7 @@ class ConfirmDialog():
             text = pygame.font.Font(FONT_LATO, 20).render(self.message, True, (255,255,255))
             if self.buttons:
                 text_rect = text.get_rect(center=(self.size[0]/2, 40))
-            else: 
+            else:
                 text_rect = text.get_rect(center=(self.size[0]/2, self.size[1]/2))
             self.surface.blit(text, text_rect)
 
@@ -132,7 +132,7 @@ class ConfirmDialog():
     def hide(self):
         self.visible = False
         self.parent.dialog = None
-    
+
     def do(self, event):
         for button in self.buttons:
             button.do(event)
@@ -143,15 +143,14 @@ class Button():
         self.pos = pos
         self.size = size
         self.function = function
-        
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.surface_rect = self.surface.get_rect(center=self.pos)
-    
+
     def do(self, event):
         if event.type == pygame.MOUSEBUTTONUP:
             mouse = pygame.mouse.get_pos()
             if within_bounds(mouse, self.surface_rect):
-                if self.function != None: 
+                if self.function != None:
                     print('clicked Button "{}"'.format(self.function))
                     self.function()
 
