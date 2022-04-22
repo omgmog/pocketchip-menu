@@ -24,7 +24,7 @@ class Menu:
     def __init__(self):
         self.size = (480, 272)
         self.fullscreen = IS_LINUX
-        self.screen = pygame.display.set_mode(self.size, self.fullscreen | pygame.DOUBLEBUF)
+        self.screen = pygame.display.set_mode(self.size, self.fullscreen | pygame.DOUBLEBUF | pygame.HWSURFACE)
         self.running = True
         self.visible = True
         self.nav_bar = Nav(self)
@@ -77,6 +77,7 @@ class Menu:
             if self.dialog.visible:
                 self.dialog.draw(page_surface)
         self.screen.blit(page_surface, page_surface.get_rect())
+        pygame.display.update()
 
     def run(self):
         self.pages.append(Power(self))
@@ -90,10 +91,8 @@ class Menu:
                 else:
                     page.visible = False
             self.do(pygame.fastevent.get())
-#            self.update()
 
             self.delta = self.clock.tick(10) / 1000.0
-            pygame.display.update()
         pygame.quit()
         quit()
 
