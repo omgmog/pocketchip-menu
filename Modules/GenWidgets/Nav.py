@@ -76,6 +76,7 @@ class Nav():
 
 
     def goToPage(self, menu, direction=None, page=None):
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
         if page and 1 <= page <= len(menu.pages):
             menu.active_page = page
         else:
@@ -93,17 +94,15 @@ class Nav():
             for button in self.buttons:
                 button.do(event)
         if self.visible:
-            if event.type == pygame.USEREVENT and 'type' in event.__dict__ and event.__dict__['type'] == 'widget_update':
-                for widget in self.widgets:
-                    if widget.page == self.parent.active_page or widget.persistent:
-                        widget.update()
+            for widget in self.widgets:
+                if widget.page == self.parent.active_page or widget.persistent:
+                    widget.update()
 
     def update(self):
         pass
 
     def draw(self, surf):
-        if self.visible:
-            print('redrawing page')
+        if self.visible is True:
             # draw page title
             font = pygame.font.Font(FONT_LATO,20)
             text = font.render(self.parent.pages[self.parent.active_page-1].title, True, (255, 255, 255))

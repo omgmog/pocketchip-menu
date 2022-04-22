@@ -42,8 +42,10 @@ class Menu:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     self.nav_bar.goToPage(self, "left")
+                    pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
                 elif event.key == pygame.K_RIGHT:
                     self.nav_bar.goToPage(self, "right")
+                    pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
             for page in self.pages:
                 if page.visible:
@@ -53,6 +55,9 @@ class Menu:
 
             if self.dialog and self.dialog.visible:
                     self.dialog.do(event)
+            if event.type == pygame.USEREVENT and 'type' in event.__dict__ and event.__dict__['type'] == 'screen_update':
+                self.update()
+                self.draw()
 
     def update(self):
         for page in self.pages:
@@ -85,10 +90,9 @@ class Menu:
                 else:
                     page.visible = False
             self.do(pygame.fastevent.get())
-            self.update()
-            self.draw()
+#            self.update()
 
-            self.delta = self.clock.tick(30) / 1000.0
+            self.delta = self.clock.tick(10) / 1000.0
             pygame.display.update()
         pygame.quit()
         quit()

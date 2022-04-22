@@ -18,7 +18,7 @@ def random_battery(charging, capacity):
     while True:
         charging.value = 0
         capacity.value = random.randint(0,100)
-        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="widget_update"))
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
         time.sleep(60)
 
 class Battery(Widget):
@@ -52,7 +52,6 @@ class Battery(Widget):
 #        commented for testing
 #        if self.battery_present is False or self.persistent is False:
 #            return
-        self.parent.needs_refresh = True
         if self.battery_charging.value == 1:
             self.image = pygame.transform.scale(pygame.image.load(assetpath('battery-charging.png')).convert_alpha(), self.size)
             return

@@ -18,7 +18,7 @@ def random_signal_strength(connect, signal):
     while True:
         connect.value = 1
         signal.value = random.randint(0,100)
-        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="widget_update"))
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
         time.sleep(10)
 
 class Wifi(Widget):
@@ -50,7 +50,6 @@ class Wifi(Widget):
 #        commented out for testing
 #        if self.wifi_device is None or self.persistent is False:
 #            return
-        self.parent.needs_refresh = True
         if self.wifi_connect.value == 0:
             self.image = pygame.transform.scale(pygame.image.load(assetpath('wifi-disconnected.png')).convert_alpha(), self.size)
             return

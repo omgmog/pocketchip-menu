@@ -12,7 +12,7 @@ import random
 def random_bluetooth(connect):
     while True:
         connect.value = random.randint(0,1)
-        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="widget_update"))
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
         time.sleep(30)
 
 class Bluetooth(Widget):
@@ -33,7 +33,6 @@ class Bluetooth(Widget):
 #        commented out for testing
 #        if self.bt_device is None or self.persistent is False:
 #            return
-        self.parent.needs_refresh = True
         if self.bluetooth_connect.value == 0:
             self.image = pygame.transform.scale(pygame.image.load(assetpath('bluetooth-disconnected.png')).convert_alpha(), self.size)
             return
