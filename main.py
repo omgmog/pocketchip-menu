@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 
 from Modules.Globals import *
+import Modules.DBusMain
 from Modules.GenWidgets.Nav import *
 from Modules.Screens.Power import *
 from Modules.Screens.Apps import *
@@ -24,7 +25,7 @@ class Menu:
     def __init__(self):
         self.size = (480, 272)
         self.fullscreen = IS_LINUX
-        self.screen = pygame.display.set_mode(self.size, self.fullscreen | pygame.DOUBLEBUF | pygame.HWSURFACE)
+        self.screen = pygame.display.set_mode(self.size, self.fullscreen | pygame.DOUBLEBUF)
         self.running = True
         self.visible = True
         self.nav_bar = Nav(self)
@@ -33,6 +34,8 @@ class Menu:
         self.delta = 0.0
         self.clock = pygame.time.Clock()
         self.dialog = None
+
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
     def do(self, eventlist):
         for event in eventlist:

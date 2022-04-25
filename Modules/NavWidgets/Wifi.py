@@ -1,25 +1,9 @@
 import pygame
 from Modules.Globals import *
+import Modules.DBusMain as DBusMain
+import dbus
 from Modules.GenWidgets.Widget import *
-from threading import Thread
 from multiprocessing import Value
-
-try:
-    from NetworkManager import NetworkManager
-except:
-    print("Network Manager Not Found!")
-
-#these are for dummy signal testing
-import time
-import random
-
-#test process to update wifi every few seconds
-def random_signal_strength(connect, signal):
-    while True:
-        connect.value = 1
-        signal.value = random.randint(0,100)
-        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
-        time.sleep(10)
 
 class Wifi(Widget):
     def __init__(self, parent=None):
@@ -30,27 +14,77 @@ class Wifi(Widget):
         self.page = None
         self.persistent = True
         self.wifi_device = None
+        self.wifi_connection = None
         self.wifi_signal = Value('i', 100)
-        self.wifi_connect = Value('i', 1)
-        self.wifi_thread = Thread(target=random_signal_strength, args=(self.wifi_connect, self.wifi_signal), daemon=True)
+        self.wifi_status = Value('i', 1)
 
         try:
-            for device in NetworkManager.GetAllDevices():
-                if device.DeviceType == 2:
-                    self.wifi_device = device
-                    self.wifi_thread.start()
+            self.get_wifi_dev()
+            self.persistent = True
         except:
-#            commented out for testing
-#            self.persistent = False
+            self.persistent = False
+        if self.wifi_device is not None:
+            try:
+                self.get_active_wifi_connection()
+                DBusMain.DBUS_BUS.add_signal_receiver(self.dbus_signal_handler,
+                                                      bus_name='org.freedesktop.NetworkManager',
+                                                      dbus_interface='org.freedesktop.DBus.Properties',
+                                                      signal_name='PropertiesChanged',
+                                                      path=self.wifi_device)
+            except:
+                self.wifi_connection = None
+        if self.wifi_connection is not None:
+            try:
+                self.get_wifi_connection_strength()
+                DBusMain.DBUS_BUS.add_signal_receiver(self.dbus_signal_handler,
+                                                      bus_name='org.freedesktop.NetworkManager',
+                                                      dbus_interface='org.freedesktop.DBus.Properties',
+                                                      signal_name='PropertiesChanged',
+                                                      path=self.wifi_connection)
+            except:
+                self.wifi_signal = 0
 
-#            added for testing
-             self.wifi_thread.start()
+    def dbus_signal_handler(self, interface, data, type):
+        #added print for testing
+        print(data)
+        update = False
+        if 'Strength' in data and int(data['Strength']) != self.wifi_signal.value:
+            self.wifi_signal.value = int(data['Strength'])
+            update = True
+        if 'ActiveAccessPoint' in data and str(data['ActiveAccessPoint']) != self.wifi_connection:
+            self.wifi_connection = str(data['ActiveAccessPoint'])
+            update = True
+        if update is True:
+            #added print for testing
+            print("Updated")
+            pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
+            update = False
+
+    def get_wifi_dev(self):
+        proxy = DBusMain.DBUS_BUS.get_object('org.freedesktop.NetworkManager',
+                                             '/org/freedesktop/NetworkManager')
+        getmanager = dbus.Interface(proxy, 'org.freedesktop.NetworkManager')
+        devices = getmanager.GetDevices()
+        for device in devices:
+            deviceobject = DBusMain.DBUS_BUS.get_object('org.freedesktop.NetworkManager',device)
+            deviceinterface = dbus.Interface(deviceobject, dbus_interface='org.freedesktop.DBus.Properties')
+            if deviceinterface.Get('org.freedesktop.NetworkManager.Device', 'DeviceType') == 2:
+                self.wifi_device = device
+
+    def get_active_wifi_connection(self):
+        proxy = DBusMain.DBUS_BUS.get_object('org.freedesktop.NetworkManager', self.wifi_device)
+        getmanager = dbus.Interface(proxy, dbus_interface='org.freedesktop.DBus.Properties')
+        self.wifi_connection = str(getmanager.Get('org.freedesktop.NetworkManager.Device.Wireless','ActiveAccessPoint'))
+
+    def get_wifi_connection_strength(self):
+        apobject = DBusMain.DBUS_BUS.get_object('org.freedesktop.NetworkManager', self.wifi_connection)
+        apinterface = dbus.Interface(apobject,dbus_interface='org.freedesktop.DBus.Properties')
+        self.wifi_signal.value = int(apinterface.Get('org.freedesktop.NetworkManager.AccessPoint', 'Strength'))
 
     def update(self):
-#        commented out for testing
-#        if self.wifi_device is None or self.persistent is False:
-#            return
-        if self.wifi_connect.value == 0:
+        if self.wifi_device is None or self.persistent is False:
+            return
+        if self.wifi_status.value == 0:
             self.image = pygame.transform.scale(pygame.image.load(assetpath('wifi-disconnected.png')).convert_alpha(), self.size)
             return
         if self.wifi_signal.value > 75:
