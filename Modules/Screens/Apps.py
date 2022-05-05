@@ -3,7 +3,6 @@ import os
 from Modules.Globals import *
 from Modules.GenWidgets.Icon import *
 
-
 class Apps():
     index = Pages.APPS
     title = 'Apps'
@@ -26,7 +25,7 @@ class Apps():
         self.parent = parent
         self.image = assetpath('mainBackground.png')
         self.collate_apps()
-     
+
         wrap_at = 3
         wrap_counter = -1
         start_x = 80 # can probably calculate this to make this more scalable.
@@ -42,7 +41,7 @@ class Apps():
                 wrap_counter += 1
                 row_offset = start_y + (row_height * wrap_counter)
             else:
-                col_offset += col_width # new col 
+                col_offset += col_width # new col
 
             pos = (col_offset, row_offset)
             size = (64, 64)
@@ -57,11 +56,10 @@ class Apps():
                 )
             )
 
-
     def do(self, event):
         for icon in self.icons:
             icon.do(event)
-                        
+
     def update(self):
         pass
 

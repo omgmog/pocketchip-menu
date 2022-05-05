@@ -1,4 +1,4 @@
 #!/bin/bash
 cd /home/chip/pocketchip-menu/
-unclutter &
+#unclutter &
 python3 main.py

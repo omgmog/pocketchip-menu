@@ -1,25 +1,24 @@
+#!/usr/bin/python3
+
 import pygame
 from pygame.locals import *
 
 from Modules.Globals import *
+import Modules.DBusMain
 from Modules.GenWidgets.Nav import *
 from Modules.Screens.Power import *
 from Modules.Screens.Apps import *
 from Modules.Screens.Settings import *
 
 if IS_LINUX:
-    from single_process import single_process
     import dbus.mainloop.glib
 
-    single_process()
     main_dbus_loop = dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     dbus.set_default_main_loop(main_dbus_loop)
-
 
 class Menu:
     pygame.init()
     pygame.display.set_caption('Menu')
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
     if IS_LINUX:
         pygame.mouse.set_visible(False)
 
@@ -36,31 +35,37 @@ class Menu:
         self.clock = pygame.time.Clock()
         self.dialog = None
 
-    def do(self, event):
-        if event.type == pygame.QUIT:
-            self.running = False
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                self.nav_bar.goToPage(self, "left")
-            elif event.key == pygame.K_RIGHT:
-                self.nav_bar.goToPage(self, "right")
-        
-        for page in self.pages:
-            if page.visible:
-                page.do(event)
+    def do(self, eventlist):
+        for event in eventlist:
+            if event.type == pygame.QUIT:
+                self.running = False
 
-        self.nav_bar.do(event)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.nav_bar.goToPage(self, "left")
+                    pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
+                elif event.key == pygame.K_RIGHT:
+                    self.nav_bar.goToPage(self, "right")
+                    pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
-        if self.dialog and self.dialog.visible:
-                self.dialog.do(event)
-            
+            for page in self.pages:
+                if page.visible:
+                    page.do(event)
+
+            self.nav_bar.do(event)
+
+            if self.dialog and self.dialog.visible:
+                    self.dialog.do(event)
+            if event.type == pygame.USEREVENT and 'type' in event.__dict__ and event.__dict__['type'] == 'screen_update':
+                self.update()
+                self.draw()
+
     def update(self):
         for page in self.pages:
             if page.visible:
                 page.update()
-
-        self.nav_bar.update()
 
     def draw(self):
         self.screen.fill((0,0,0,0))
@@ -69,21 +74,18 @@ class Menu:
             if page.visible:
                 if page.image:
                     page_surface.blit(pygame.image.load(page.image).convert(), (0,0))
-                page.draw(page_surface)  
+                page.draw(page_surface)
         self.nav_bar.draw(page_surface)
         if self.dialog:
             if self.dialog.visible:
-                self.dialog.draw(page_surface) 
+                self.dialog.draw(page_surface)
         self.screen.blit(page_surface, page_surface.get_rect())
-
-        # debug center
-        # pygame.draw.rect(self.screen, (255,255,0), pygame.Rect(self.size[0]/2,self.size[1]/2,0,0),3)
+        pygame.display.update()
 
     def run(self):
         self.pages.append(Power(self))
         self.pages.append(Apps(self))
         self.pages.append(Settings(self))
-        
 
         while self.running:
             for page in self.pages:
@@ -91,17 +93,13 @@ class Menu:
                     page.visible = True
                 else:
                     page.visible = False
-            self.do(pygame.event.wait())
-            self.update()
-            self.draw()
+            self.do(pygame.fastevent.get())
 
-            self.delta = self.clock.tick(30) / 1000.0
-            pygame.display.update()
+            self.delta = self.clock.tick(10) / 1000.0
         pygame.quit()
         quit()
 
-# kick it off
-
 if __name__ == '__main__':
+    pygame.fastevent.init()
     menu = Menu()
     menu.run()

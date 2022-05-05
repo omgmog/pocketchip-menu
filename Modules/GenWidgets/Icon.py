@@ -19,11 +19,9 @@ class Icon(Button):
             self.size = self.image.get_rect()
         self.size = (self.size[0]+20, self.size[1]+20)
         self.function = function
-        
-        
         self.surface = pygame.Surface((self.size[0], self.size[1]), pygame.SRCALPHA)
         self.surface_rect = self.surface.get_rect(topleft=self.pos)
-    
+
     def draw(self, surf):
         # empty fill to clear what's been drawn
         self.surface.fill((0,0,0,0))
@@ -41,4 +39,4 @@ class Icon(Button):
             self.surface.blit(text, text_rect)
 
         surf.blit(self.surface, self.surface_rect)
-            
+

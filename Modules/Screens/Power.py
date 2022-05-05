@@ -68,7 +68,7 @@ class Power():
                 size=icon_size,
                 function=icon_data[3],
                 pos=(
-                    int(x_padding * (index + 1)) + (icon_size[0] * index), 
+                    int(x_padding * (index + 1)) + (icon_size[0] * index),
                     int(y_padding)
                 )
             ))
@@ -88,6 +88,6 @@ class Power():
     def draw(self, surf):
         for icon in self.icons:
             icon.draw(surf)
-    
+
 if __name__ == '__main__':
     pass
