@@ -18,7 +18,7 @@ class Nav():
                 page=Pages.APPS,
                 image='powerIcon.png',
                 pos=(
-                    EDGE_PADDING, 
+                    EDGE_PADDING,
                     self.parent.screen.get_height() - 22 - EDGE_PADDING
                 ),
                 size=(45,22),
@@ -31,7 +31,7 @@ class Nav():
                 page=Pages.POWER,
                 image='nextIcon.png',
                 pos=(
-                    self.parent.screen.get_width() - 64, 
+                    self.parent.screen.get_width() - 64,
                     self.parent.screen.get_height()/2 - 32
                 ),
                 size=(64,64),
@@ -46,7 +46,7 @@ class Nav():
                 page=Pages.APPS,
                 image='settingsIcon.png',
                 pos=(
-                    self.parent.screen.get_width() - 45 - EDGE_PADDING, 
+                    self.parent.screen.get_width() - 45 - EDGE_PADDING,
                     self.parent.screen.get_height() - 22 - EDGE_PADDING
                 ),
                 size=(45,22),
@@ -61,7 +61,7 @@ class Nav():
                 page=Pages.SETTINGS,
                 image='backIcon.png',
                 pos=(
-                    0, 
+                    0,
                     self.parent.screen.get_height()/2 - 32
                 ),
                 size=(64,64),
@@ -76,6 +76,7 @@ class Nav():
 
 
     def goToPage(self, menu, direction=None, page=None):
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
         if page and 1 <= page <= len(menu.pages):
             menu.active_page = page
         else:
@@ -87,20 +88,21 @@ class Nav():
                 menu.active_page += 1
                 if menu.active_page >= len(menu.pages):
                     menu.active_page = len(menu.pages)
+
     def do(self, event):
         if self.parent.visible:
             for button in self.buttons:
                 button.do(event)
-
-    def update(self):
         if self.visible:
-            # update widgets
             for widget in self.widgets:
                 if widget.page == self.parent.active_page or widget.persistent:
                     widget.update()
 
+    def update(self):
+        pass
+
     def draw(self, surf):
-        if self.visible:
+        if self.visible is True:
             # draw page title
             font = pygame.font.Font(FONT_LATO,20)
             text = font.render(self.parent.pages[self.parent.active_page-1].title, True, (255, 255, 255))

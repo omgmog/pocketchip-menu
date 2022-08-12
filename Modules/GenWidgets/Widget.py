@@ -22,7 +22,7 @@ class Slider():
 
         self.handle_width = 10
         self.handle_x = ((self.size[0]/self.max)*self.value) - (self.handle_width/2)
-        
+
     def setValue(self, value):
         print('Setting the value to {}'.format(value))
         self.value = int(round(value, 0))
@@ -46,7 +46,7 @@ class Slider():
         font = pygame.font.Font(FONT_LATO,14)
         if self.label:
             text_string = '{}: {}'.format(self.label, self.value)
-        else: 
+        else:
             text_string = str(self.value)
         rendered_text = font.render(text_string, True, (255,255,255))
         text_rect = rendered_text.get_rect(midtop=(self.size[0]/2,0))
@@ -56,7 +56,7 @@ class Slider():
         if self.icons:
             icon_size = (24,24)
             positions = [self.pos, (self.pos[0] + self.size[0] - icon_size[0], self.pos[1])] # left, right
-            for index,icon in enumerate(self.icons): 
+            for index,icon in enumerate(self.icons):
                 icon_asset = pygame.image.load(assetpath(icon)).convert_alpha()
                 image = pygame.transform.scale(icon_asset, icon_size)
                 surf.blit(image, positions[index])
@@ -71,10 +71,12 @@ class Slider():
                 slider_width = self.size[0]
                 clicked_pos = mouse[0] - self.pos[0]
                 self.setValue((self.max/slider_width) * clicked_pos)
+                pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
             if event.type == pygame.MOUSEBUTTONUP:
-                if self.function != None: 
+                if self.function != None:
                     print('clicked Slider "{}"'.format(self.label))
                     self.function()
+                    pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
 class ConfirmDialog():
     def __init__(self, parent=None, message='Are you sure?', options=None):
@@ -109,7 +111,7 @@ class ConfirmDialog():
     def draw(self, surf):
         # empty fill to clear what's been drawn
         self.surface.fill((0,0,0,0))
-        
+
         # draw a background fill
         dialog_rect = pygame.Rect(0,0, self.size[0], self.size[1], topleft=(0,0))
         pygame.draw.rect(self.surface, (100,100,100), dialog_rect)
@@ -118,7 +120,7 @@ class ConfirmDialog():
             text = pygame.font.Font(FONT_LATO, 20).render(self.message, True, (255,255,255))
             if self.buttons:
                 text_rect = text.get_rect(center=(self.size[0]/2, 40))
-            else: 
+            else:
                 text_rect = text.get_rect(center=(self.size[0]/2, self.size[1]/2))
             self.surface.blit(text, text_rect)
 
@@ -128,11 +130,13 @@ class ConfirmDialog():
 
     def show(self):
         self.visible = True
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
     def hide(self):
         self.visible = False
         self.parent.dialog = None
-    
+        pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
+
     def do(self, event):
         for button in self.buttons:
             button.do(event)
@@ -143,15 +147,14 @@ class Button():
         self.pos = pos
         self.size = size
         self.function = function
-        
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.surface_rect = self.surface.get_rect(center=self.pos)
-    
+
     def do(self, event):
         if event.type == pygame.MOUSEBUTTONUP:
             mouse = pygame.mouse.get_pos()
             if within_bounds(mouse, self.surface_rect):
-                if self.function != None: 
+                if self.function != None:
                     print('clicked Button "{}"'.format(self.function))
                     self.function()
 
@@ -165,7 +168,6 @@ class TextButton():
         self.fillcolor = fillcolor
         self.bordercolor = bordercolor
         self.textcolor = textcolor
-        
 
         if self.text:
             self.rendered_text = pygame.font.Font(FONT_LATO,20).render(self.text, True, self.textcolor)
@@ -173,10 +175,10 @@ class TextButton():
             # if we're not using a specific size, work it out based on the text
             if not self.size:
                 self.size = (
-                    self.rendered_text.get_width() + BUTTON_PADDING[0] + BUTTON_PADDING[2], 
+                    self.rendered_text.get_width() + BUTTON_PADDING[0] + BUTTON_PADDING[2],
                     self.rendered_text.get_height() + BUTTON_PADDING[1] + BUTTON_PADDING[3]
                 )
-            
+
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.surface_rect = pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
         self.surface_rect.center=self.pos
@@ -193,7 +195,7 @@ class TextButton():
         # draw the text
         if self.rendered_text:
             self.surface.blit(
-                self.rendered_text, 
+                self.rendered_text,
                 (
                     (self.size[0]/2)-(self.rendered_text.get_width()/2),
                     (self.size[1]/2)-(self.rendered_text.get_height()/2)
@@ -201,13 +203,14 @@ class TextButton():
             )
         # blit button to surf
         surf.blit(self.surface, self.surface_rect)
-    
+
     def do(self, event):
         if event.type == pygame.MOUSEBUTTONUP:
             if within_bounds(pygame.mouse.get_pos(), self.surface_rect):
                 if self.function != None:
                     print('clicked TextButton "{}"'.format(self.text))
                     self.function()
+                    pygame.fastevent.post(pygame.event.Event(pygame.USEREVENT, type="screen_update"))
 
 class PageButton(Button):
     def __init__(self, parent=None, image=None, pos=(0,0), size=(0,0), page=None, function=None):
@@ -219,7 +222,7 @@ class PageButton(Button):
         self.function = function
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.surface_rect = self.surface.get_rect(topleft=self.pos)
-    
+
     def draw(self, surf):
         # empty fill to clear what's been drawn
         self.surface.fill((0,0,0,0))
